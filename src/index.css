@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark: #050505;
+  --color-neonBlue: #00f3ff;
+  --color-neonPurple: #bc13fe;
+  --color-neonPink: #ff007f;
+}
+
+@layer base {
+  body {
+    @apply bg-dark text-slate-200 antialiased overflow-x-hidden cursor-none selection:bg-neonPurple selection:text-white;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #bc13fe;
+}
+
+/* Neon Glow Effects */
+.shadow-neon {
+  box-shadow:
+    0 0 10px rgba(0, 243, 255, 0.5),
+    0 0 20px rgba(188, 19, 254, 0.3);
+}
+
+/* Three.js Canvas Styling */
+canvas {
+  display: block;
+}
+
+/* Smooth Transitions */
+* {
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
