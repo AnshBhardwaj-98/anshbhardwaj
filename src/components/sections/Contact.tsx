@@ -8,8 +8,8 @@ import {
   CheckCircle,
   AlertCircle,
   Code2,
-  Zap,
   Share2,
+  Zap,
   X,
 } from "lucide-react";
 import emailjs from "@emailjs/browser";
@@ -21,6 +21,9 @@ export const Contact = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [toastVisible, setToastVisible] = useState(false);
+  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -65,9 +68,18 @@ export const Contact = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-    if (touched[name as keyof typeof touched]) {
-      setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+    const fieldKey =
+      name === "from_name"
+        ? "name"
+        : name === "from_email"
+          ? "email"
+          : "message";
+    setFormState((prev) => ({ ...prev, [fieldKey]: value }));
+    if (touched[fieldKey as keyof typeof touched]) {
+      setErrors((prev) => ({
+        ...prev,
+        [fieldKey]: validateField(fieldKey, value),
+      }));
     }
   };
 
@@ -75,11 +87,30 @@ export const Contact = () => {
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    setErrors((prev) => ({ ...prev, [name]: validateField(name, value) }));
+    const fieldKey =
+      name === "from_name"
+        ? "name"
+        : name === "from_email"
+          ? "email"
+          : "message";
+    setTouched((prev) => ({ ...prev, [fieldKey]: true }));
+    setErrors((prev) => ({
+      ...prev,
+      [fieldKey]: validateField(fieldKey, value),
+    }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const showToast = (type: "success" | "error") => {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setStatus(type);
+    setToastVisible(true);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastVisible(false);
+      setStatus("idle");
+    }, 5000);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formRef.current) return;
 
@@ -94,8 +125,8 @@ export const Contact = () => {
 
     if (Object.values(newErrors).some((err) => err !== "")) {
       // Shake animation on error fields
-      const errorElements = document.querySelectorAll(".input-error");
-      errorElements.forEach((el) => {
+      const errorInputs = document.querySelectorAll(".has-error");
+      errorInputs.forEach((el) => {
         el.classList.add("animate-shake");
         setTimeout(() => el.classList.remove("animate-shake"), 500);
       });
@@ -103,48 +134,31 @@ export const Contact = () => {
     }
 
     setIsSubmitting(true);
-    setStatus("idle");
 
-    emailjs
-      .sendForm(
+    try {
+      await emailjs.sendForm(
         import.meta.env.VITE_EMAILJS_SERVICE_ID || "",
         import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "",
         formRef.current,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "",
-      )
-      .then(
-        () => {
-          setStatus("success");
-          setToastVisible(true);
-          setFormState({ name: "", email: "", message: "" });
-          setTouched({ name: false, email: false, message: false });
-          setTimeout(() => {
-            setToastVisible(false);
-            setStatus("idle");
-          }, 5000);
-        },
-        (error) => {
-          console.error("EmailJS Error:", error);
-          setStatus("error");
-          setToastVisible(true);
-          setTimeout(() => {
-            setToastVisible(false);
-            setStatus("idle");
-          }, 5000);
-        },
-      )
-      .finally(() => {
-        setIsSubmitting(false);
-      });
+      );
+      showToast("success");
+      setFormState({ name: "", email: "", message: "" });
+      setTouched({ name: false, email: false, message: false });
+    } catch (error) {
+      console.error("EmailJS Error:", error);
+      showToast("error");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Auto-hide toast after 5 seconds
+  // Cleanup timeout on unmount
   useEffect(() => {
-    if (toastVisible) {
-      const timer = setTimeout(() => setToastVisible(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [toastVisible]);
+    return () => {
+      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    };
+  }, []);
 
   const socialLinks = [
     {
@@ -206,7 +220,9 @@ export const Contact = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Name Input */}
               <motion.div variants={itemVariants} className="space-y-1">
-                <div className="relative">
+                <div
+                  className={`relative ${touched.name && errors.name ? "has-error" : ""}`}
+                >
                   <input
                     type="text"
                     id="name"
@@ -223,9 +239,7 @@ export const Contact = () => {
                   />
                   <label
                     htmlFor="name"
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-200 pointer-events-none peer-focus:top-0 peer-focus:text-xs peer-focus:text-neonBlue peer-focus:-translate-y-1/2 ${
-                      formState.name ? "top-0 text-xs -translate-y-1/2" : ""
-                    }`}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonBlue bg-white/5 px-1"
                   >
                     <span className="flex items-center gap-1">
                       <User size={14} /> Name *
@@ -248,7 +262,9 @@ export const Contact = () => {
 
               {/* Email Input */}
               <motion.div variants={itemVariants} className="space-y-1">
-                <div className="relative">
+                <div
+                  className={`relative ${touched.email && errors.email ? "has-error" : ""}`}
+                >
                   <input
                     type="email"
                     id="email"
@@ -265,9 +281,7 @@ export const Contact = () => {
                   />
                   <label
                     htmlFor="email"
-                    className={`absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-200 pointer-events-none peer-focus:top-0 peer-focus:text-xs peer-focus:text-neonPurple peer-focus:-translate-y-1/2 ${
-                      formState.email ? "top-0 text-xs -translate-y-1/2" : ""
-                    }`}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonPurple bg-white/5 px-1"
                   >
                     <span className="flex items-center gap-1">
                       <Mail size={14} /> Email *
@@ -298,7 +312,9 @@ export const Contact = () => {
 
             {/* Message Input */}
             <motion.div variants={itemVariants} className="space-y-1">
-              <div className="relative">
+              <div
+                className={`relative ${touched.message && errors.message ? "has-error" : ""}`}
+              >
                 <textarea
                   id="message"
                   name="message"
@@ -315,9 +331,7 @@ export const Contact = () => {
                 />
                 <label
                   htmlFor="message"
-                  className={`absolute left-4 top-4 text-gray-400 transition-all duration-200 pointer-events-none peer-focus:top-0 peer-focus:text-xs peer-focus:text-neonPink ${
-                    formState.message ? "top-0 text-xs" : ""
-                  }`}
+                  className="absolute left-3 top-4 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonPink bg-white/5 px-1"
                 >
                   <span className="flex items-center gap-1">
                     <MessageSquare size={14} /> Message *
@@ -449,7 +463,7 @@ export const Contact = () => {
         )}
       </AnimatePresence>
 
-      {/* Add shake animation to global styles or inline */}
+      {/* Shake animation */}
       <style>{`
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
