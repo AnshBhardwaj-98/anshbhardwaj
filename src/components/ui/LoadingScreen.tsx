@@ -259,7 +259,7 @@ export const LoadingScreen = () => {
 
   const getLightColor = (i: number) => {
     const pct = (i / 15) * 100;
-    if (progress < pct) return "#111";
+    if (progress < pct) return "#e2e8f0";
     if (i < 5) return "#22c55e";
     if (i < 10) return "#dc2626";
     return "#3b82f6";
@@ -275,7 +275,7 @@ export const LoadingScreen = () => {
   const sectorColor = (s: number) => {
     if (sectorCrossed > s) return "#f1c100";
     if (Math.floor(sectorCrossed) === s) return "#bb0016";
-    return "#1f2937";
+    return "#e2e8f0";
   };
 
   return (
@@ -302,7 +302,7 @@ export const LoadingScreen = () => {
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            background: "#070708",
+            background: "#f8fafc",
             overflow: "hidden",
           }}
         >
@@ -316,7 +316,7 @@ export const LoadingScreen = () => {
               pointerEvents: "none",
               zIndex: 2,
               backgroundImage:
-                "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.04) 3px, rgba(0,0,0,0.04) 4px)",
+                "repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,0.02) 3px, rgba(0,0,0,0.02) 4px)",
             }}
           />
           <div
@@ -327,7 +327,7 @@ export const LoadingScreen = () => {
               right: 0,
               height: "4px",
               background:
-                "linear-gradient(90deg, transparent, rgba(187,0,22,0.5), transparent)",
+                "linear-gradient(90deg, transparent, rgba(187,0,22,0.3), transparent)",
               animation: "scanline 2.5s linear infinite",
               pointerEvents: "none",
               zIndex: 3,
@@ -341,7 +341,7 @@ export const LoadingScreen = () => {
               inset: 0,
               pointerEvents: "none",
               backgroundImage:
-                "linear-gradient(rgba(187,0,22,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(187,0,22,0.04) 1px, transparent 1px)",
+                "linear-gradient(rgba(187,0,22,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(187,0,22,0.06) 1px, transparent 1px)",
               backgroundSize: "60px 60px",
             }}
           />
@@ -353,7 +353,7 @@ export const LoadingScreen = () => {
               inset: 0,
               pointerEvents: "none",
               background:
-                "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 40%, rgba(187,0,22,0.08) 100%)",
+                "radial-gradient(ellipse 60% 50% at 50% 50%, transparent 40%, rgba(187,0,22,0.04) 100%)",
               animation: "speed-vignette 1.5s ease-in-out infinite",
             }}
           />
@@ -382,7 +382,7 @@ export const LoadingScreen = () => {
                   left: "50%",
                   transform: "translateX(-50%)",
                   background: "#00cc66",
-                  color: "#000",
+                  color: "#fff",
                   padding: "4px 20px",
                   fontFamily: "'Orbitron', monospace",
                   fontSize: "10px",
@@ -449,7 +449,7 @@ export const LoadingScreen = () => {
                         ? "#000"
                         : sectorCrossed === i
                           ? "white"
-                          : "#444",
+                          : "#94a3b8",
                     fontFamily: "'Orbitron', monospace",
                     fontSize: "8px",
                     padding: "2px 8px",
@@ -466,12 +466,12 @@ export const LoadingScreen = () => {
               ))}
               <div
                 style={{
-                  background: "#111",
-                  border: "1px solid #222",
+                  background: "#f1f5f9",
+                  border: "1px solid #e2e8f0",
                   padding: "2px 8px",
                   fontFamily: "'Orbitron', monospace",
                   fontSize: "8px",
-                  color: "#666",
+                  color: "#64748b",
                   letterSpacing: "0.1em",
                 }}
               >
@@ -522,10 +522,10 @@ export const LoadingScreen = () => {
               <div key={label} style={{ display: "flex", gap: 0 }}>
                 <div
                   style={{
-                    background: "#0f0f0f",
-                    border: "1px solid #1e1e1e",
+                    background: "#f1f5f9",
+                    border: "1px solid #e2e8f0",
                     padding: "2px 8px",
-                    color: "#555",
+                    color: "#64748b",
                     fontFamily: "'Orbitron', monospace",
                     fontSize: "8px",
                     letterSpacing: "0.12em",
@@ -535,10 +535,10 @@ export const LoadingScreen = () => {
                 </div>
                 <div
                   style={{
-                    background: highlight ? "#bb0016" : "#1a1a1a",
-                    border: highlight ? "none" : "1px solid #222",
+                    background: highlight ? "#bb0016" : "#ffffff",
+                    border: highlight ? "none" : "1px solid #cbd5e1",
                     padding: "2px 10px",
-                    color: "white",
+                    color: highlight ? "white" : "#0f172a",
                     fontFamily: "'Orbitron', monospace",
                     fontSize: "9px",
                     fontWeight: 700,
@@ -570,9 +570,10 @@ export const LoadingScreen = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 6,
-                  background: "rgba(10,10,10,0.9)",
-                  border: "1px solid #333",
+                  background: "rgba(255,255,255,0.9)",
+                  border: "1px solid #e2e8f0",
                   padding: "5px 10px",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                 }}
               >
                 <div
@@ -844,7 +845,7 @@ export const LoadingScreen = () => {
                   fontSize: "clamp(28px, 5vw, 50px)",
                   fontWeight: 900,
                   letterSpacing: "0.1em",
-                  color: "white",
+                  color: "#0f172a",
                   textTransform: "uppercase",
                   lineHeight: 1,
                   animation: glitch
@@ -907,9 +908,9 @@ export const LoadingScreen = () => {
                 display: "flex",
                 gap: 5,
                 marginBottom: 22,
-                background: "#0a0a0a",
+                background: "#f1f5f9",
                 padding: "10px 18px",
-                border: "1px solid #1e1e1e",
+                border: "1px solid #e2e8f0",
                 clipPath:
                   "polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%)",
               }}
@@ -959,7 +960,7 @@ export const LoadingScreen = () => {
                   style={{
                     fontFamily: "'Orbitron', monospace",
                     fontSize: 7,
-                    color: "#555",
+                    color: "#64748b",
                     letterSpacing: "0.18em",
                   }}
                 >
@@ -970,7 +971,7 @@ export const LoadingScreen = () => {
                     cx="40"
                     cy="40"
                     r="32"
-                    stroke="#1a1a1a"
+                    stroke="#e2e8f0"
                     strokeWidth="7"
                     fill="none"
                   />
@@ -984,7 +985,7 @@ export const LoadingScreen = () => {
                         y1={40 + Math.sin(angle) * 27}
                         x2={40 + Math.cos(angle) * 32}
                         y2={40 + Math.sin(angle) * 32}
-                        stroke="#333"
+                        stroke="#cbd5e1"
                         strokeWidth="1.5"
                       />
                     );
@@ -1012,7 +1013,7 @@ export const LoadingScreen = () => {
                     x="40"
                     y="43"
                     textAnchor="middle"
-                    fill="white"
+                    fill="#0f172a"
                     fontFamily="Orbitron, monospace"
                     fontSize="11"
                     fontWeight="700"
@@ -1031,7 +1032,7 @@ export const LoadingScreen = () => {
                 >
                   <path
                     d="M40,140 L45,155 C50,165 65,170 80,165 L160,110 C175,100 180,85 170,70 L160,40 C155,25 140,20 125,30 L80,60 C70,65 60,60 55,50 L45,30 C40,20 25,25 20,40 L30,100 C32,115 25,125 15,130 L10,135 C5,140 10,150 20,150 L40,140 Z"
-                    stroke="white"
+                    stroke="#1e293b"
                     strokeWidth="6"
                     strokeLinejoin="round"
                   />
@@ -1091,12 +1092,12 @@ export const LoadingScreen = () => {
                     position: "absolute",
                     top: -2,
                     right: -4,
-                    background: "#111",
-                    border: "1px solid #222",
+                    background: "#f1f5f9",
+                    border: "1px solid #e2e8f0",
                     padding: "2px 6px",
                     fontFamily: "'Orbitron', monospace",
                     fontSize: 6,
-                    color: "#555",
+                    color: "#64748b",
                     letterSpacing: "0.1em",
                   }}
                 >
@@ -1129,7 +1130,7 @@ export const LoadingScreen = () => {
                       style={{
                         fontFamily: "'Orbitron', monospace",
                         fontSize: 7,
-                        color: "#444",
+                        color: "#94a3b8",
                         letterSpacing: "0.15em",
                       }}
                     >
@@ -1139,8 +1140,8 @@ export const LoadingScreen = () => {
                       style={{
                         width: 110,
                         height: 5,
-                        background: "#111",
-                        border: "1px solid #1a1a1a",
+                        background: "#f1f5f9",
+                        border: "1px solid #e2e8f0",
                       }}
                     >
                       <motion.div
@@ -1208,8 +1209,8 @@ export const LoadingScreen = () => {
                   style={{
                     width: "100%",
                     height: 10,
-                    background: "#0a0a0a",
-                    border: "1px solid #1e1e1e",
+                    background: "#f1f5f9",
+                    border: "1px solid #e2e8f0",
                     clipPath:
                       "polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%)",
                     overflow: "hidden",
@@ -1241,7 +1242,7 @@ export const LoadingScreen = () => {
                       width: "30%",
                       height: "100%",
                       background:
-                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
+                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent)",
                     }}
                   />
                 </div>
@@ -1259,7 +1260,7 @@ export const LoadingScreen = () => {
                       background:
                         sectorCrossed >= (pct > 50 ? 2 : 1)
                           ? "#f1c100"
-                          : "#333",
+                          : "#cbd5e1",
                       transition: "background 0.3s ease",
                     }}
                   />
@@ -1270,7 +1271,7 @@ export const LoadingScreen = () => {
                 style={{
                   fontFamily: "'Orbitron', monospace",
                   fontSize: 8,
-                  color: "#333",
+                  color: "#94a3b8",
                   letterSpacing: "0.2em",
                 }}
               >
@@ -1308,10 +1309,10 @@ export const LoadingScreen = () => {
                 position: "absolute",
                 background:
                   i % 4 === 0
-                    ? "rgba(187,0,22,0.1)"
+                    ? "rgba(187,0,22,0.15)"
                     : i % 3 === 0
-                      ? "rgba(241,193,0,0.05)"
-                      : "rgba(255,255,255,0.025)",
+                      ? "rgba(241,193,0,0.1)"
+                      : "rgba(15,23,42,0.05)",
                 height: i % 5 === 0 ? 2 : 1,
                 pointerEvents: "none",
               }}
@@ -1342,7 +1343,7 @@ export const LoadingScreen = () => {
               transform: "translateX(-50%)",
               fontFamily: "'Orbitron', monospace",
               fontSize: 7,
-              color: "#2a2a2a",
+              color: "#94a3b8",
               letterSpacing: "0.25em",
               whiteSpace: "nowrap",
             }}
