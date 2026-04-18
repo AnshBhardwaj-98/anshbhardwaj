@@ -35,7 +35,7 @@ export const Footer = () => {
   ];
 
   return (
-    <footer className="relative z-10 bg-surface-base border-t-[12px] border-chassis">
+    <footer className="relative z-10 bg-surface-base border-t-12 border-chassis">
       {/* Visual Accents */}
       <div className="absolute inset-0 checkered-pattern opacity-[0.03] pointer-events-none" />
       <div className="absolute top-0 right-0 w-64 h-64 carbon-fiber opacity-[0.05] pointer-events-none" />
