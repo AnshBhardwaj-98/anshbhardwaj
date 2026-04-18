@@ -8,6 +8,7 @@ import { Experience } from "./components/sections/Experience";
 import { Education } from "./components/sections/Education";
 import { Contact } from "./components/sections/Contact";
 import { Footer } from "./components/layout/Footer";
+import { LoadingScreen } from "./components/ui/LoadingScreen";
 
 export default function App() {
   const { scrollYProgress } = useScroll();
@@ -19,6 +20,8 @@ export default function App() {
 
   return (
     <div className="relative w-full bg-surface-base selection:bg-ignitionRed selection:text-white">
+      <LoadingScreen />
+      
       {/* High-Performance Progress Bar */}
       <motion.div
         className="fixed top-0 left-0 right-0 h-1.5 bg-ignitionRed origin-left z-[100]"
