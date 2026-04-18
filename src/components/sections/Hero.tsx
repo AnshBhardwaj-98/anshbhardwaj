@@ -62,9 +62,37 @@ export const Hero = () => {
       id="hero"
       className="relative h-screen flex flex-col justify-center items-start overflow-hidden px-6 md:px-24 bg-surface-base"
     >
-      {/* Patterns & Glows */}
-      <div className="absolute inset-0 z-0 aero-glow-red" />
-      <div className="absolute inset-0 z-0 carbon-fiber opacity-[0.03]" />
+      {/* ─── Dynamic Technical Background ─── */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Deep Aero Glow */}
+        <div className="absolute top-0 left-0 w-full h-full aero-glow-red opacity-50" />
+
+        {/* Technical Circuit Lines */}
+        <svg className="absolute inset-0 w-full h-full opacity-[0.03] stroke-chassis">
+          <pattern
+            id="circuit-grid"
+            width="100"
+            height="100"
+            patternUnits="userSpaceOnUse"
+          >
+            <path d="M 100 0 L 0 0 0 100" fill="none" strokeWidth="0.5" />
+            <circle cx="0" cy="0" r="1" fill="currentColor" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#circuit-grid)" />
+        </svg>
+
+        {/* Moving 'Aero' Accents */}
+        <motion.div
+          style={{ x: mouseX, y: mouseY, rotate: 15 }}
+          className="absolute -top-1/2 -left-1/4 w-[150%] h-[150%] opacity-[0.02] checkered-pattern"
+        />
+
+        {/* Geometric Wing Accent */}
+        <div className="absolute top-0 right-0 w-1/2 h-full bg-linear-to-l from-chassis/[0.02] to-transparent skew-x-[-15deg] translate-x-1/4" />
+      </div>
+
+      {/* Existing Background Patterns */}
+      <div className="absolute inset-0 z-0 carbon-fiber opacity-[0.03] pointer-events-none" />
 
       {/* Background Large Text with Mouse Parallax - Repositioned to avoid overlap */}
       <motion.div
