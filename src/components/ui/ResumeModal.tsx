@@ -41,12 +41,16 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
       );
 
       // 2️⃣ Send resume to USER (Account B)
-      await emailjs.send(
+      console.log("Sending auto-reply...");
+
+      const res = await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID_B,
         import.meta.env.VITE_EMAILJS_TEMPLATE3_ID, // auto-reply template
         data,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY_B,
       );
+
+      console.log("Auto-reply success:", res);
 
       setIsSuccess(true);
 
