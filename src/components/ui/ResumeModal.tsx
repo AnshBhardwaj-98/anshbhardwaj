@@ -103,7 +103,7 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
                     System / Request
                   </h3>
                   <p className="text-2xl font-black text-chassis uppercase italic tracking-tighter leading-none">
-                    Telemetry Fetch
+                    Resume Fetch
                   </p>
                 </div>
               </div>
