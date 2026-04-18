@@ -1,120 +1,171 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Code2, Share2, Mail, ArrowUp } from "lucide-react";
+import { ArrowUp, Flag, Globe, Zap, Code2, Share2, Target } from "lucide-react";
 
 export const Footer = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
   const currentYear = new Date().getFullYear();
 
   useEffect(() => {
-    const handleScroll = () => {
-      setShowBackToTop(window.scrollY > 500);
-    };
+    const handleScroll = () => setShowBackToTop(window.scrollY > 500);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
   const socialLinks = [
     {
+      label: "GITHUB",
       icon: Code2,
-      href: "https://github.com/yourusername",
-      label: "GitHub",
-      color: "hover:text-neonBlue",
-      glow: "hover:shadow-neonBlue/50",
+      href: "https://github.com/AnshBhardwaj-98",
+      value: "REPO_ACCESS",
     },
     {
+      label: "LINKEDIN",
       icon: Share2,
-      href: "https://linkedin.com/in/yourusername",
-      label: "LinkedIn",
-      color: "hover:text-neonPurple",
-      glow: "hover:shadow-neonPurple/50",
+      href: "https://linkedin.com/in/divyanshbhardwaj001",
+      value: "NETWORK_ID",
     },
     {
-      icon: Mail,
-      href: "mailto:your.email@example.com",
-      label: "Email",
-      color: "hover:text-neonPink",
-      glow: "hover:shadow-neonPink/50",
+      label: "LEETCODE",
+      icon: Target,
+      href: "https://leetcode.com/u/itsanshbhardwaj/",
+      value: "SIGNAL_OUT",
     },
-    // Optional: LeetCode / Twitter – replace or add as needed
-    // {
-    //   icon: Code2,
-    //   href: "https://leetcode.com/yourusername",
-    //   label: "LeetCode",
-    //   color: "hover:text-yellow-400",
-    //   glow: "hover:shadow-yellow-400/50"
-    // },
+    { label: "PORTFOLIO", icon: Globe, href: "#", value: "v4.2_LIVE" },
   ];
 
   return (
-    <footer className="relative z-10 mt-24">
-      {/* Gradient top border */}
-      <div className="h-px w-full bg-linear-to-r from-transparent via-neonBlue/50 to-transparent" />
+    <footer className="relative z-10 bg-surface-base border-t-[12px] border-chassis">
+      {/* Visual Accents */}
+      <div className="absolute inset-0 checkered-pattern opacity-[0.03] pointer-events-none" />
+      <div className="absolute top-0 right-0 w-64 h-64 carbon-fiber opacity-[0.05] pointer-events-none" />
 
-      <div className="bg-black/40 backdrop-blur-xl border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 md:px-20 py-12">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            {/* Brand */}
-            <div className="text-center md:text-left">
-              <h2 className="text-2xl font-bold bg-linear-to-r from-white to-white/70 bg-clip-text text-transparent">
-                ANSHBHARDWAJ.COM
-              </h2>
-              <p className="text-gray-400 text-sm mt-2 max-w-xs">
-                Building scalable tools & AI applications.
-              </p>
+      <div className="max-w-7xl mx-auto px-6 md:px-24 py-24 relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+          {/* Main Branding Block */}
+          <div className="lg:col-span-6 space-y-12">
+            <div className="flex items-start gap-8">
+              <div className="w-24 h-24 bg-chassis text-white flex items-center justify-center rounded-none shadow-2xl relative group overflow-hidden">
+                <div className="absolute inset-0 bg-ignitionRed translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                <Flag
+                  className="relative z-10 text-telemetryYellow group-hover:text-white transition-colors"
+                  size={40}
+                />
+              </div>
+              <div>
+                <h2 className="text-5xl md:text-7xl font-black text-chassis tracking-tighter uppercase italic leading-[0.8] mb-4">
+                  Ansh <br />
+                  <span className="text-ignitionRed">Bhardwaj</span>
+                </h2>
+                <div className="flex items-center gap-4 text-chassis/40">
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+                    Sector_DB105
+                  </span>
+                  <div className="h-px w-12 bg-chassis/10" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">
+                    F1_ENG_v4
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Social Links */}
-            <div className="flex gap-6">
-              {socialLinks.map((social, idx) => (
-                <motion.a
-                  key={idx}
-                  href={social.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={social.label}
-                  className={`text-gray-400 transition-all duration-300 ${social.color} hover:scale-110 hover:-translate-y-1`}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <social.icon size={24} />
-                </motion.a>
-              ))}
-            </div>
+            <p className="text-chassis/60 text-lg font-display uppercase tracking-tight max-w-md leading-tight border-l-4 border-telemetryYellow pl-8 py-2">
+              Architecting high-throughput{" "}
+              <span className="text-chassis font-black italic">
+                Generative AI systems
+              </span>{" "}
+              and intelligent automation pipelines. Engineered for maximum
+              velocity and zero latency.
+            </p>
           </div>
 
-          {/* Bottom row: copyright + small details */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-10 pt-6 border-t border-white/10 text-xs text-gray-500">
-            <p>© {currentYear} Ansh Bhardwaj / Divyansh Bhardwaj</p>
-            <p className="flex items-center gap-1 text-neonPink">
-              {/* Made with <Heart size={12} className="text-neonPink" />
-              and <Coffee size={12} className="text-neonBlue" /> in India */}
-              All rights reserved.
+          {/* Social & Meta Grid */}
+          <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            {socialLinks.map((item, i) => (
+              <a
+                key={i}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group p-8 bg-surface-container hover:bg-chassis transition-all duration-500 relative overflow-hidden"
+              >
+                {/* Background ID Tag */}
+                <span className="absolute top-2 right-4 text-[7px] font-black text-chassis/10 group-hover:text-white/10 uppercase tracking-widest">
+                  Link_Entry_0{i + 1}
+                </span>
+
+                <div className="flex items-center gap-6 mb-4">
+                  <div className="p-3 bg-white shadow-sm group-hover:bg-ignitionRed transition-colors">
+                    <item.icon
+                      size={20}
+                      className="text-chassis group-hover:text-white transition-colors"
+                    />
+                  </div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-chassis/40 group-hover:text-white/40">
+                    {item.label}
+                  </h4>
+                </div>
+                <div className="flex justify-between items-end">
+                  <span className="text-sm font-black text-chassis uppercase italic group-hover:text-telemetryYellow transition-colors">
+                    {item.value}
+                  </span>
+                  <Zap
+                    size={14}
+                    className="text-ignitionRed opacity-0 group-hover:opacity-100 transition-opacity"
+                  />
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Bottom Metadata Bar */}
+        <div className="mt-32 pt-12 border-t border-chassis/5 flex flex-col md:flex-row justify-between items-end gap-10">
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <div
+                  key={i}
+                  className={`w-6 h-1 ${i <= 4 ? "bg-chassis" : "bg-chassis/10"}`}
+                />
+              ))}
+            </div>
+            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-chassis/30">
+              © {currentYear} DB105 // THE AERODYNAMIC EDGE // ALL SYSTEMS
+              NOMINAL
+            </p>
+          </div>
+
+          <div className="text-right">
+            <span className="text-[8px] font-black uppercase tracking-[0.4em] text-ignitionRed block mb-2 italic">
+              Maximum_Velocity_Protocol
+            </span>
+            <p className="text-xs font-black uppercase italic text-chassis">
+              Built for the podium.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Back to Top Button */}
+      {/* High-Performance Back to Top */}
       <AnimatePresence>
         {showBackToTop && (
           <motion.button
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.8 }}
-            transition={{ duration: 0.2 }}
-            onClick={scrollToTop}
-            className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-linear-to-br from-neonBlue to-neonPurple text-white shadow-lg flex items-center justify-center hover:shadow-neonBlue/50 transition-all duration-300 group"
-            aria-label="Back to top"
+            initial={{ opacity: 0, scale: 0.8, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: 20 }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            className="fixed bottom-12 right-12 z-50 w-20 h-20 bg-ignitionRed text-white flex flex-col items-center justify-center hover:bg-chassis transition-all shadow-2xl group border-none rounded-none"
           >
             <ArrowUp
-              size={20}
-              className="group-hover:-translate-y-0.5 transition-transform"
+              size={24}
+              className="group-hover:-translate-y-1 transition-transform mb-1"
             />
+            <span className="text-[7px] font-black uppercase tracking-widest">
+              TOP
+            </span>
           </motion.button>
         )}
       </AnimatePresence>

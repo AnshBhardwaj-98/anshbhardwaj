@@ -6,19 +6,29 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        display: ['"Space Grotesk"', 'sans-serif'],
+        sans: ['Manrope', 'sans-serif'],
+      },
       colors: {
-        dark: '#050505',
-        neonBlue: '#00f3ff',
-        neonPurple: '#bc13fe',
-        neonPink: '#ff007f',
+        chassis: '#000827',
+        ignitionRed: '#bb0016',
+        telemetryYellow: {
+          DEFAULT: '#f1c100',
+          dark: '#745b00',
+        },
+        surface: {
+          base: '#f9f9f9',
+          layered: '#e2e2e2',
+          container: '#ececec',
+        }
       },
       backgroundImage: {
-        'glass': 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01))',
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'red-gradient': 'linear-gradient(135deg, #bb0016 0%, #8a0010 100%)',
+        'navy-gradient': 'linear-gradient(135deg, #000827 0%, #00124d 100%)',
       },
-      boxShadow: {
-        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-        'neon': '0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(188, 19, 254, 0.3)',
+      borderRadius: {
+        'sm': '2px',
       }
     },
   },

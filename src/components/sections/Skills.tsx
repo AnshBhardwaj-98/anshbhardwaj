@@ -4,83 +4,45 @@ import {
   Code2,
   Server,
   Layout,
-  Database,
   BrainCircuit,
   Terminal,
+  Activity,
+  Cpu,
+  Database,
 } from "lucide-react";
 import { SectionHeading } from "../ui/SectionHeading";
 
-/* ─── Network topology ──────────────────────────────────────────── */
+/* ─── Neural-F1 Hybrid Taxonomy ──────────────────────────────────── */
 const LAYERS = [
   {
-    label: "Input Layer",
+    label: "INPUT / INTAKE",
     nodes: [
       {
         id: "lang",
-        title: "Languages",
+        title: "LANGUAGES",
         Icon: Code2,
-        color: "#00f3ff",
-        skills: ["Python", "JavaScript (ES6+)", "C++", "Java"],
+        color: "#bb0016",
+        skills: ["Python", "JavaScript", "C++", "Java"],
+        stat: "v-max",
       },
       {
         id: "tools",
-        title: "Developer Tools",
+        title: "DEV TOOLS",
         Icon: Terminal,
-        color: "#ff007f",
+        color: "#f1c100",
         skills: ["Git", "Docker", "VS Code"],
-      },
-      {
-        id: "core",
-        title: "Core CS",
-        Icon: Code2,
-        color: "#bc13fe",
-        skills: ["Data Structures", "Algorithms", "OOP", "DBMS"],
+        stat: "optimal",
       },
     ],
   },
-
   {
-    label: "Hidden Layer",
-    nodes: [
-      {
-        id: "frontend",
-        title: "Frontend",
-        Icon: Layout,
-        color: "#00f3ff",
-        skills: ["React.js", "Next.js", "React Native"],
-      },
-      {
-        id: "backend",
-        title: "Backend",
-        Icon: Server,
-        color: "#bc13fe",
-        skills: ["FastAPI", "Node.js", "Express.js", "REST APIs", "JWT Auth"],
-      },
-      {
-        id: "realtime",
-        title: "Realtime Systems",
-        Icon: Server,
-        color: "#ff007f",
-        skills: ["WebSockets", "Socket.IO", "SSE"],
-      },
-      {
-        id: "api",
-        title: "API Integration",
-        Icon: Server,
-        color: "#00f3ff",
-        skills: ["GraphQL", "YouTube Data API", "Shopify API"],
-      },
-    ],
-  },
-
-  {
-    label: "Output Layer",
+    label: "SYNAPSE / CORE",
     nodes: [
       {
         id: "ai",
-        title: "AI & ML",
+        title: "AI ENGINE",
         Icon: BrainCircuit,
-        color: "#ff007f",
+        color: "#000827",
         skills: [
           "PyTorch",
           "TensorFlow",
@@ -89,27 +51,36 @@ const LAYERS = [
           "NumPy",
           "Pandas",
         ],
+        stat: "98.4%",
       },
       {
-        id: "genai",
-        title: "Generative AI",
-        Icon: BrainCircuit,
-        color: "#00f3ff",
-        skills: ["LLMs", "Stable Diffusion XL", "Prompt Engineering"],
+        id: "backend",
+        title: "BACKEND",
+        Icon: Server,
+        color: "#000827",
+        skills: ["FastAPI", "Node.js", "Express.js", "REST APIs"],
+        stat: "active",
       },
       {
-        id: "data",
-        title: "Databases",
+        id: "db",
+        title: "DATABASES",
         Icon: Database,
-        color: "#bc13fe",
+        color: "#000827",
         skills: ["PostgreSQL", "MySQL", "MongoDB"],
+        stat: "live",
       },
+    ],
+  },
+  {
+    label: "OUTPUT / AERO",
+    nodes: [
       {
-        id: "pipeline",
-        title: "Data Pipelines",
-        Icon: Database,
-        color: "#ff007f",
-        skills: ["Pandas", "openpyxl", "SheetJS", "ETL"],
+        id: "interface",
+        title: "USER FLOW",
+        Icon: Layout,
+        color: "#bb0016",
+        skills: ["React.js", "Next.js", "React Native"],
+        stat: "peak",
       },
     ],
   },
@@ -120,11 +91,6 @@ interface Connection {
   to: string;
 }
 
-const ALL_NODES = Object.fromEntries(
-  LAYERS.flatMap((l) => l.nodes.map((n) => [n.id, n])),
-);
-
-// All adjacent-layer connections (2×2 + 2×2 = 8 edges)
 const CONNECTIONS: Connection[] = [];
 for (let i = 0; i < LAYERS.length - 1; i++) {
   for (const src of LAYERS[i].nodes) {
@@ -134,19 +100,10 @@ for (let i = 0; i < LAYERS.length - 1; i++) {
   }
 }
 
-// Stable pseudo-random weight from node pair
-function edgeWeight(a: string, b: string): string {
-  let h = 0;
-  for (const c of `${a}→${b}`) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return (0.28 + (h % 65) / 100).toFixed(2);
-}
-
-/* ─── Component ─────────────────────────────────────────────────── */
 export const Skills = () => {
   const [hovered, setHovered] = useState<string | null>(null);
   const nodeRefs = useRef<{ [key: string]: HTMLElement | null }>({});
   const svgRef = useRef<SVGSVGElement | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
   const [positions, setPositions] = useState<{
     [key: string]: { x: number; y: number };
   }>({});
@@ -167,8 +124,7 @@ export const Skills = () => {
   }, []);
 
   useEffect(() => {
-    updatePositions();
-    const t = setTimeout(updatePositions, 150);
+    const t = setTimeout(updatePositions, 100);
     window.addEventListener("resize", updatePositions);
     return () => {
       clearTimeout(t);
@@ -176,337 +132,206 @@ export const Skills = () => {
     };
   }, [updatePositions]);
 
-  // Nodes connected to hovered
-  const connected = hovered
-    ? new Set(
-        CONNECTIONS.flatMap((c) =>
-          c.from === hovered ? [c.to] : c.to === hovered ? [c.from] : [],
-        ),
-      )
-    : new Set();
-
-  const isDimmed = (id: string) =>
-    hovered !== null && hovered !== id && !connected.has(id);
   const isEdgeActive = (c: Connection) =>
     hovered !== null && (hovered === c.from || hovered === c.to);
 
   return (
     <section
       id="skills"
-      className="pt-32 pb-4 px-6 md:px-20 max-w-400 mx-auto relative z-10 overflow-visible"
+      className="py-32 px-6 md:px-24 bg-surface-layered relative overflow-hidden"
     >
-      <SectionHeading>Technical Arsenal</SectionHeading>
+      {/* Technical Grid Overlay */}
+      <div className="absolute inset-0 checkered-pattern opacity-[0.03] pointer-events-none" />
 
-      {/* ── Sublabel ── */}
-      <p className="hidden md:block text-center text-[10px] uppercase tracking-[0.4em] text-white/25 font-bold -mt-4 mb-16">
-        Skill Architecture
-      </p>
+      <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+        <SectionHeading align="left">
+          Neural Telemetry / Technical Suite
+        </SectionHeading>
+        <div className="flex items-center gap-6 px-6 py-3 bg-chassis text-white rounded-none border-b-4 border-ignitionRed shadow-2xl">
+          <Activity size={16} className="text-telemetryYellow animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+            Processing Logic Stream
+          </span>
+        </div>
+      </div>
 
-      {/* ── Desktop: Neural Network ── */}
-      <div
-        ref={containerRef}
-        className="relative hidden md:flex items-center justify-between"
-        style={{ minHeight: 480, paddingBottom: "9rem" }}
-      >
-        {/* SVG edges */}
-        <svg
-          ref={svgRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-0 overflow-visible"
-        >
-          <defs>
-            <filter
-              id="pulse-glow"
-              x="-80%"
-              y="-80%"
-              width="260%"
-              height="260%"
-            >
-              <feGaussianBlur stdDeviation="3.5" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-            <filter id="edge-glow" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="2" result="b" />
-              <feMerge>
-                <feMergeNode in="b" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start relative z-10">
+        {/* Left: Neural Network Interactive */}
+        <div className="lg:col-span-8 relative bg-surface-base p-12 shadow-2xl border-l-8 border-chassis overflow-hidden">
+          {/* F1 Overlay markings */}
+          <div className="absolute top-0 right-0 p-4 opacity-10 font-display font-black italic text-chassis uppercase text-xs select-none">
+            Scale: 1:1 / Revision_B
+          </div>
 
-          {CONNECTIONS.map((conn, i) => {
-            const f = positions[conn.from];
-            const t = positions[conn.to];
-            if (!f || !t) return null;
-
-            const active = isEdgeActive(conn);
-            const color = ALL_NODES[conn.from].color;
-            const w = edgeWeight(conn.from, conn.to);
-            const mx = (f.x + t.x) / 2;
-            const my = (f.y + t.y) / 2;
-
-            return (
-              <g key={`${conn.from}-${conn.to}`}>
-                {/* Glow halo on active edge */}
-                {active && (
-                  <line
+          <svg
+            ref={svgRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-0"
+          >
+            {CONNECTIONS.map((conn, i) => {
+              const f = positions[conn.from];
+              const t = positions[conn.to];
+              if (!f || !t) return null;
+              const active = isEdgeActive(conn);
+              return (
+                <g key={i}>
+                  <motion.line
                     x1={f.x}
                     y1={f.y}
                     x2={t.x}
                     y2={t.y}
-                    stroke={color}
-                    strokeWidth={10}
-                    strokeOpacity={0.1}
-                    filter="url(#edge-glow)"
+                    stroke={active ? "#bb0016" : "#000827"}
+                    strokeWidth={active ? 2 : 1}
+                    strokeOpacity={active ? 1 : 0.04}
+                    transition={{ duration: 0.3 }}
                   />
-                )}
-
-                {/* Base edge line */}
-                <motion.line
-                  x1={f.x}
-                  y1={f.y}
-                  x2={t.x}
-                  y2={t.y}
-                  stroke={active ? color : "rgba(255,255,255,0.07)"}
-                  strokeWidth={active ? 1.6 : 0.6}
-                  animate={{
-                    stroke: active ? color : "rgba(255,255,255,0.07)",
-                    strokeWidth: active ? 1.6 : 0.6,
-                  }}
-                  transition={{ duration: 0.2 }}
-                />
-
-                {/* Weight label */}
-                <motion.text
-                  x={mx}
-                  y={my - 8}
-                  textAnchor="middle"
-                  fontSize="9"
-                  fontFamily="'Courier New', monospace"
-                  animate={{
-                    fill: active ? color : "rgba(255,255,255,0.1)",
-                    opacity: active ? 0.85 : 1,
-                  }}
-                  transition={{ duration: 0.2 }}
-                >
-                  w={w}
-                </motion.text>
-
-                {/* Ambient slow particle */}
-                {!active && (
-                  <motion.circle
-                    r={1}
-                    fill="rgba(255,255,255,0.2)"
-                    animate={{
-                      cx: [f.x, t.x],
-                      cy: [f.y, t.y],
-                      opacity: [0, 0.2, 0],
-                    }}
-                    transition={{
-                      duration: 5 + i * 0.55,
-                      repeat: Infinity,
-                      delay: i * 0.45,
-                      ease: "linear",
-                    }}
-                  />
-                )}
-
-                {/* Active signal pulses (3 staggered) */}
-                {active &&
-                  [0, 0.28, 0.56].map((delay, pi) => (
+                  {active && (
                     <motion.circle
-                      key={pi}
-                      r={3.5}
-                      fill={color}
-                      filter="url(#pulse-glow)"
+                      r={4}
+                      fill="#bb0016"
                       animate={{
                         cx: [f.x, t.x],
                         cy: [f.y, t.y],
-                        opacity: [0, 1, 1, 0],
-                        scale: [0.6, 1, 1, 0.6],
+                        opacity: [0, 1, 0],
                       }}
                       transition={{
-                        duration: 0.65,
+                        duration: 0.6,
                         repeat: Infinity,
-                        delay,
                         ease: "easeInOut",
                       }}
                     />
-                  ))}
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* Layer columns */}
-        {LAYERS.map((layer) => (
-          <div
-            key={layer.label}
-            className="flex-1 flex flex-col items-center gap-20 z-10 relative"
-            style={{ paddingTop: "2.5rem" }}
-          >
-            {/* Layer label + tick */}
-            <div className="absolute top-0 left-0 right-0 flex flex-col items-center gap-1">
-              <span className="text-[9px] uppercase tracking-[0.45em] text-white/25 font-bold">
-                {layer.label}
-              </span>
-              <div className="w-6 h-px bg-white/10" />
-            </div>
-
-            {/* Neurons */}
-            {layer.nodes.map((node) => {
-              const isHov = hovered === node.id;
-              const dim = isDimmed(node.id);
-
-              return (
-                <div
-                  key={node.id}
-                  className="relative select-none"
-                  ref={(el) => {
-                    nodeRefs.current[node.id] = el;
-                  }}
-                  onMouseEnter={() => setHovered(node.id)}
-                  onMouseLeave={() => setHovered(null)}
-                >
-                  {/* Skill cloud */}
-                  <AnimatePresence>
-                    {isHov && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="absolute inset-0 flex items-center justify-center pointer-events-none z-30"
-                      >
-                        {node.skills.map((s, i) => {
-                          const total = node.skills.length;
-                          const angle = (i / total) * Math.PI * 2; // full circle
-                          const radius = 90; // distance from center
-
-                          const x = Math.cos(angle) * radius;
-                          const y = Math.sin(angle) * radius;
-
-                          return (
-                            <motion.span
-                              key={s}
-                              initial={{ opacity: 0, scale: 0 }}
-                              animate={{
-                                opacity: 1,
-                                scale: 1,
-                                x,
-                                y,
-                              }}
-                              exit={{ opacity: 0, scale: 0 }}
-                              transition={{
-                                delay: i * 0.05,
-                                type: "spring",
-                                stiffness: 200,
-                              }}
-                              className="absolute text-[11px] px-3 py-1 rounded-full font-mono"
-                              style={{
-                                background: "rgba(0,0,0,0.9)",
-                                border: `1px solid ${node.color}50`,
-                                color: node.color,
-                                backdropFilter: "blur(8px)",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {s}
-                            </motion.span>
-                          );
-                        })}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                  {/* Ripple rings */}
-                  {isHov && (
-                    <>
-                      {[
-                        { s: 2.4, d: 0 },
-                        { s: 3, d: 0.45 },
-                      ].map(({ s, d }, ri) => (
-                        <motion.div
-                          key={ri}
-                          className="absolute inset-0 rounded-full pointer-events-none"
-                          style={{
-                            border: `1.5px solid ${node.color}70`,
-                          }}
-                          animate={{ scale: [1, s], opacity: [0.7, 0] }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            delay: d,
-                            ease: "easeOut",
-                          }}
-                        />
-                      ))}
-                    </>
                   )}
-
-                  {/* Neuron body */}
-                  <motion.div
-                    className="relative w-19.5 h-19.5 rounded-full flex items-center justify-center cursor-pointer overflow-hidden"
-                    style={{
-                      background: "rgba(0,0,0,0.82)",
-                      backdropFilter: "blur(16px)",
-                      WebkitBackdropFilter: "blur(16px)",
-                      border: `2px solid ${isHov ? node.color : "rgba(255,255,255,0.13)"}`,
-                      boxShadow: isHov
-                        ? `0 0 42px ${node.color}50, 0 0 14px ${node.color}25, inset 0 0 22px ${node.color}12`
-                        : "none",
-                      transition: "border-color 0.25s, box-shadow 0.25s",
-                    }}
-                    animate={{
-                      opacity: dim ? 0.13 : 1,
-                      scale: isHov ? 1.1 : 1,
-                    }}
-                    transition={{
-                      duration: 0.25,
-                      type: "spring",
-                      stiffness: 280,
-                    }}
-                  >
-                    {/* Inner radial glow */}
-                    {isHov && (
-                      <div
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background: `radial-gradient(circle at center, ${node.color}30, transparent 70%)`,
-                        }}
-                      />
-                    )}
-                    <node.Icon
-                      size={28}
-                      color={
-                        isHov
-                          ? node.color
-                          : dim
-                            ? "rgba(255,255,255,0.1)"
-                            : "rgba(255,255,255,0.55)"
-                      }
-                    />
-                  </motion.div>
-
-                  {/* Node label */}
-                  <motion.p
-                    className="mt-3 text-center text-[10px] font-bold uppercase tracking-widest"
-                    animate={{
-                      color: isHov
-                        ? node.color
-                        : dim
-                          ? "rgba(255,255,255,0.08)"
-                          : "rgba(255,255,255,0.38)",
-                    }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    {node.title}
-                  </motion.p>
-                </div>
+                </g>
               );
             })}
+          </svg>
+
+          <div className="relative z-10 h-150 flex justify-between">
+            {LAYERS.map((layer) => (
+              <div
+                key={layer.label}
+                className="flex flex-col justify-around py-10 h-full w-1/3"
+              >
+                <div className="text-center">
+                  <span className="text-[8px] font-black uppercase tracking-[0.4em] text-chassis/40 block mb-1">
+                    {layer.label}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-10 items-center justify-center grow">
+                  {layer.nodes.map((node) => {
+                    const isHov = hovered === node.id;
+                    return (
+                      <div
+                        key={node.id}
+                        ref={(el) => {
+                          nodeRefs.current[node.id] = el;
+                        }}
+                        onMouseEnter={() => setHovered(node.id)}
+                        onMouseLeave={() => setHovered(null)}
+                        className="relative"
+                      >
+                        {/* Neuron Rings */}
+                        <div
+                          className={`absolute inset-0 rounded-full border border-chassis/5 transition-all duration-500 ${isHov ? "scale-150 opacity-0" : "scale-110 opacity-100"}`}
+                        />
+
+                        <div
+                          className={`group relative w-20 h-20 rounded-full flex items-center justify-center transition-all duration-300 cursor-crosshair border-2 ${isHov ? "bg-chassis border-ignitionRed shadow-[0_0_40px_rgba(187,0,22,0.2)] scale-110" : "bg-surface-layered border-chassis/10"}`}
+                        >
+                          <node.Icon
+                            size={28}
+                            className={
+                              isHov ? "text-telemetryYellow" : "text-chassis/40"
+                            }
+                          />
+
+                          {/* Skill Cloud */}
+                          <AnimatePresence>
+                            {isHov && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 5 }}
+                                className="absolute bottom-full left-1/2 -translate-x-1/2 mb-6 w-52 pointer-events-none z-20"
+                              >
+                                <div className="bg-chassis text-white p-4 rounded-none border-t-4 border-telemetryYellow shadow-2xl relative">
+                                  <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-chassis" />
+                                  <div className="flex flex-wrap gap-2 justify-center">
+                                    {node.skills.map((s) => (
+                                      <span
+                                        key={s}
+                                        className="text-[8px] font-black uppercase tracking-widest text-telemetryYellow/80"
+                                      >
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+
+        {/* Right: Data Readout Modules */}
+        <div className="lg:col-span-4 space-y-4">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-chassis/40 mb-8 flex items-center gap-4">
+            <Cpu size={14} /> Telemetry_Stack.v3
+          </h3>
+
+          <div className="space-y-2">
+            {LAYERS.flatMap((l) => l.nodes).map((node) => (
+              <motion.div
+                key={node.id}
+                onMouseEnter={() => setHovered(node.id)}
+                onMouseLeave={() => setHovered(null)}
+                animate={{
+                  backgroundColor: hovered === node.id ? "#000827" : "#ececec",
+                  x: hovered === node.id ? -10 : 0,
+                }}
+                className={`p-6 flex flex-col gap-4 border-l-4 transition-all duration-300 ${hovered === node.id ? "border-ignitionRed" : "border-telemetryYellow"}`}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h4
+                      className={`text-sm font-black uppercase italic tracking-tighter ${hovered === node.id ? "text-white" : "text-chassis"}`}
+                    >
+                      {node.title}
+                    </h4>
+                    <span
+                      className={`text-[8px] font-bold uppercase tracking-widest ${hovered === node.id ? "text-telemetryYellow" : "text-chassis/40"}`}
+                    >
+                      Node_Pulse_{node.id.toUpperCase()}
+                    </span>
+                  </div>
+                  <div
+                    className={`px-2 py-1 text-[9px] font-black uppercase tracking-widest ${hovered === node.id ? "bg-ignitionRed text-white" : "bg-chassis/5 text-chassis/60"}`}
+                  >
+                    {node.stat}
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5">
+                  {node.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className={`px-3 py-1 text-[9px] font-bold uppercase tracking-wider ${hovered === node.id ? "bg-white/10 text-white border-white/20" : "bg-white text-chassis border-chassis/5"} border`}
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ── Mobile fallback ── */}
@@ -517,22 +342,24 @@ export const Skills = () => {
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur-lg"
+            className="bg-surface-container p-6 rounded-none border-l-4 border-telemetryYellow shadow-md"
           >
-            <div className="flex items-center gap-3 mb-3">
-              <node.Icon size={18} color={node.color} />
-              <h3
-                className="font-bold text-sm uppercase tracking-wider"
-                style={{ color: node.color }}
-              >
-                {node.title}
-              </h3>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <node.Icon size={18} className="text-chassis" />
+                <h3 className="font-black text-sm uppercase italic tracking-tighter text-chassis">
+                  {node.title}
+                </h3>
+              </div>
+              <span className="text-[8px] font-black uppercase tracking-widest text-ignitionRed bg-chassis/5 px-2 py-1">
+                {node.stat}
+              </span>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {node.skills.map((s) => (
                 <span
                   key={s}
-                  className="text-[10px] px-2 py-0.5 rounded-full bg-black/40 border border-white/10 text-gray-400 font-mono"
+                  className="text-[9px] px-2 py-1 bg-surface-base border border-chassis/10 text-chassis/60 font-bold uppercase tracking-wider"
                 >
                   {s}
                 </span>

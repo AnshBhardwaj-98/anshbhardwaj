@@ -1,47 +1,75 @@
 @import "tailwindcss";
 
 @theme {
-  --color-dark: #050505;
-  --color-neonBlue: #00f3ff;
-  --color-neonPurple: #bc13fe;
-  --color-neonPink: #ff007f;
+  --color-chassis: #000827;
+  --color-ignitionRed: #bb0016;
+  --color-telemetryYellow: #f1c100;
+  --color-telemetryYellow-dark: #745b00;
+  --color-surface-base: #f9f9f9;
+  --color-surface-layered: #e2e2e2;
+  --color-surface-container: #ececec;
 }
 
 @layer base {
   body {
-    @apply bg-dark text-slate-200 antialiased overflow-x-hidden cursor-none selection:bg-neonPurple selection:text-white;
+    background-color: var(--color-surface-base);
+    color: var(--color-chassis);
+    font-family: "Manrope", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
+  
+  body::selection {
+    background-color: var(--color-ignitionRed);
+    color: white;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "Space Grotesk", sans-serif;
+  }
+}
+
+/* Aerodynamic Patterns */
+@utility carbon-fiber {
+  background-color: #f9f9f9;
+  background-image: linear-gradient(45deg, #f2f2f2 25%, transparent 25%, transparent 75%, #f2f2f2 75%, #f2f2f2), 
+                    linear-gradient(45deg, #f2f2f2 25%, transparent 25%, transparent 75%, #f2f2f2 75%, #f2f2f2);
+  background-size: 4px 4px;
+  background-position: 0 0, 2px 2px;
+}
+
+@utility checkered-pattern {
+  background-image: conic-gradient(#000827 90deg, transparent 90deg 180deg, #000827 180deg 270deg, transparent 270deg);
+  background-size: 40px 40px;
+}
+
+/* Fast Interactions */
+* {
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #050505;
+  background: #f9f9f9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: #000827;
+  border-radius: 0;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bc13fe;
+  background: #bb0016;
 }
 
-/* Neon Glow Effects */
-.shadow-neon {
-  box-shadow:
-    0 0 10px rgba(0, 243, 255, 0.5),
-    0 0 20px rgba(188, 19, 254, 0.3);
+@utility aero-shadow {
+  box-shadow: 0 20px 40px -15px rgba(0, 8, 39, 0.05);
 }
 
-/* Three.js Canvas Styling */
-canvas {
-  display: block;
-}
-
-/* Smooth Transitions */
-* {
-  transition-property: color, background-color, border-color, box-shadow;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+@utility aero-glow-red {
+  background: radial-gradient(circle at 50% 50%, rgba(187, 0, 22, 0.08) 0%, transparent 70%);
 }

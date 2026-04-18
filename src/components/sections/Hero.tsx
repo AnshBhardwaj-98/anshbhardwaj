@@ -1,157 +1,179 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
-import { StarBackground } from "../three/StarBackground";
+import { useState, useRef, useEffect } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { ResumeModal } from "../ui/ResumeModal";
-import { Download, ChevronDown, Sparkles } from "lucide-react";
+import { Download, Activity } from "lucide-react";
+import { Magnetic } from "../ui/Magnetic";
 
 export const Hero = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const firstName = "DIVYANSH";
-  const lastName = "BHARDWAJ";
+  // Mouse position for parallax (spring-smooth)
+  const mouseX = useSpring(0, { stiffness: 100, damping: 20 });
+  const mouseY = useSpring(0, { stiffness: 100, damping: 20 });
 
-  const renderNameLine = (text: string) =>
-    text.split("").map((char, index) => (
-      <motion.span
-        key={index}
-        variants={letterVariants}
-        className="inline-block hover:text-neonBlue transition-colors cursor-default flex-shrink-0"
-      >
-        {char}
-      </motion.span>
-    ));
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const { clientX, clientY } = e;
+      const { innerWidth, innerHeight } = window;
+      // Range: -25 to 25 for subtle movement
+      const x = (clientX / innerWidth - 0.5) * 50;
+      const y = (clientY / innerHeight - 0.5) * 50;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []); // mouseX/mouseY are stable, no need to re-run
+
+  const { scrollY } = useScroll();
+  const nameY = useTransform(scrollY, [0, 500], [0, 100]);
+  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
+
+  // Parallax transforms for background elements
+  const bgParallaxX = useTransform(mouseX, (x) => x * 0.5);
+  const bgParallaxY = useTransform(mouseY, (y) => y * 0.3);
+  const contentParallaxX = useTransform(mouseX, (x) => x * 0.2);
+  const contentParallaxY = useTransform(mouseY, (y) => y * 0.15);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.05,
+        staggerChildren: 0.1,
         delayChildren: 0.2,
       },
     },
   };
 
-  const letterVariants = {
-    hidden: { opacity: 0, y: 20 },
+  const itemVariants = {
+    hidden: { opacity: 0, x: -30 },
     visible: {
       opacity: 1,
-      y: 0,
-      transition: { type: "spring" as const, stiffness: 200, damping: 10 },
+      x: 0,
+      transition: { duration: 0.6, ease: [0.33, 1, 0.68, 1] },
     },
-  };
+  } as const;
 
   return (
     <section
+      ref={containerRef}
       id="hero"
-      className="relative h-screen flex flex-col justify-center items-center overflow-hidden px-6 md:px-20"
+      className="relative h-screen flex flex-col justify-center items-start overflow-hidden px-6 md:px-24 bg-surface-base"
     >
-      {/* Background Layer */}
-      <div className="absolute inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 1] }}>
-          <StarBackground />
-        </Canvas>
-        {/* Radial Glow & Grid Overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,243,255,0.1),transparent_70%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff05_1px,transparent_1px),linear-gradient(to_bottom,#ffffff05_1px,transparent_1px)] bg-size-[40px_40px] mask-[radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-      </div>
+      {/* Patterns & Glows */}
+      <div className="absolute inset-0 z-0 aero-glow-red" />
+      <div className="absolute inset-0 z-0 carbon-fiber opacity-[0.03]" />
 
-      {/* Hero Content Centered */}
-      <div className="z-10 w-full max-w-5xl text-center">
-        {/* Status Badge */}
+      {/* Background Large Text with Mouse Parallax - Repositioned to avoid overlap */}
+      <motion.div
+        className="absolute top-1/2 right-0 z-0 select-none pointer-events-none overflow-hidden"
+        style={{ opacity, x: bgParallaxX, y: bgParallaxY, translateY: "-50%" }}
+      >
+        <h2 className="text-[20vw] font-black text-chassis/[0.02] leading-none tracking-tighter uppercase font-display italic">
+          High Performance
+        </h2>
+      </motion.div>
+
+      {/* Hero Content with Mouse Parallax */}
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="z-10 w-full max-w-6xl"
+        style={{ x: contentParallaxX, y: contentParallaxY }}
+      >
+        {/* Telemetry Badge */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md"
+          variants={itemVariants}
+          className="inline-flex items-center gap-3 px-4 py-1.5 bg-chassis text-white mb-10 rounded-sm"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neonBlue opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-neonBlue"></span>
-          </span>
-          <span className="text-xs font-medium text-gray-300 uppercase tracking-widest flex items-center gap-2">
-            Available for new projects{" "}
-            <Sparkles size={12} className="text-neonBlue" />
+          <Activity size={14} className="text-telemetryYellow animate-pulse" />
+          <span className="text-[11px] font-display font-bold uppercase tracking-[0.25em]">
+            System Status: Optimal / {new Date().getFullYear()}
           </span>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          {/* Main Name with animated letters */}
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 tracking-tighter text-white leading-tight flex flex-col justify-center items-center gap-0 md:gap-2 max-w-full px-2">
-            <div className="flex flex-wrap justify-center gap-1 md:gap-2">
-              {renderNameLine(firstName)}
+        <motion.div style={{ y: nameY }}>
+          <h1 className="text-6xl sm:text-8xl md:text-[11rem] font-black text-chassis leading-[0.8] mb-12 tracking-tighter uppercase font-display italic">
+            <div className="overflow-hidden">
+              <motion.span
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 1, ease: [0.33, 1, 0.68, 1] }}
+                className="block"
+              >
+                Divyansh
+              </motion.span>
             </div>
-            <div className="flex flex-wrap justify-center gap-1 md:gap-2">
-              {renderNameLine(lastName)}
+            <div className="overflow-hidden">
+              <motion.span
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                transition={{
+                  duration: 1,
+                  delay: 0.1,
+                  ease: [0.33, 1, 0.68, 1],
+                }}
+                className="block text-ignitionRed"
+              >
+                Bhardwaj
+              </motion.span>
             </div>
           </h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 1 }}
-            className="text-xl md:text-3xl text-gray-400 font-light mb-12 mx-auto max-w-3xl leading-relaxed"
-          >
-            Generative AI Engineer <span className="text-neonBlue">/</span>{" "}
-            <span className="text-neonBlue">Synergy Labs</span>{" "}
-            <br className="hidden md:block" />
-            <span className="text-lg md:text-xl text-gray-500 mt-2 block">
-              Architecting intelligent automation at the intersection of logic
-              and creativity.
-            </span>
-          </motion.p>
+          <div className="flex flex-col md:flex-row md:items-end gap-12">
+            <motion.p
+              variants={itemVariants}
+              className="text-lg md:text-2xl text-chassis max-w-md font-medium uppercase font-display leading-tight tracking-tight border-l-4 border-telemetryYellow pl-6"
+            >
+              Generative AI Engineer at{" "}
+              <span className="text-ignitionRed">Synergy Labs</span>.
+              Architecting high-throughput intelligence.
+            </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 1.2 }}
-            className="flex flex-wrap gap-4 justify-center"
-          >
-            <a
-              href="#projects"
-              className="group px-8 py-3.5 rounded-full bg-white text-black font-bold hover:bg-neonBlue hover:text-white hover:shadow-neon transition-all duration-300 flex items-center gap-2"
+            <motion.div
+              variants={itemVariants}
+              className="flex flex-wrap gap-5"
             >
-              View Work
-            </a>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-8 py-3.5 rounded-full border border-white/20 hover:border-neonPurple hover:text-white hover:bg-neonPurple/20 transition-all duration-300 backdrop-blur-sm bg-white/5 flex items-center gap-2 group"
-            >
-              <Download
-                size={18}
-                className="group-hover:-translate-y-1 transition-transform"
-              />
-              Get Resume
-            </button>
-            <a
-              href="#contact-form"
-              className="px-8 py-3.5 rounded-full border border-white/20 hover:border-neonPink hover:text-white hover:bg-neonPink/20 transition-all duration-300 backdrop-blur-sm bg-white/5"
-            >
-              Contact Me
-            </a>
-          </motion.div>
+              <Magnetic strength={0.2}>
+                <a
+                  href="#projects"
+                  className="group px-12 py-6 bg-ignitionRed text-white font-black rounded-sm uppercase tracking-[0.2em] text-sm shadow-2xl shadow-ignitionRed/40 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 flex items-center relative overflow-hidden"
+                  aria-label="Navigate to projects section"
+                >
+                  {/* High-visibility yellow notch */}
+                  <div className="absolute top-0 right-0 w-2 h-2 bg-telemetryYellow" />
+                  <span className="relative z-10">Launch Projects</span>
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.2}>
+                <button
+                  onClick={() => setIsModalOpen(true)}
+                  className="px-12 py-6 bg-chassis text-telemetryYellow font-black rounded-sm uppercase tracking-[0.2em] text-sm shadow-2xl shadow-chassis/40 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 flex items-center gap-3 border-l-4 border-telemetryYellow"
+                  aria-label="Open resume modal"
+                >
+                  <Download size={18} className="text-white" />
+                  Telemetry/Resume
+                </button>
+              </Magnetic>
+            </motion.div>
+          </div>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* Scroll Down Indicator */}
+      {/* Down Indicator */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1 }}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-gray-500 flex flex-col items-center gap-2"
+        transition={{ delay: 2, duration: 1.5 }}
+        className="absolute bottom-10 right-24 text-chassis/40 hidden md:flex flex-col items-center gap-3"
       >
-        <span className="text-[10px] uppercase tracking-[0.3em]">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-        >
-          <ChevronDown size={20} className="text-neonBlue" />
-        </motion.div>
+        <span className="text-[10px] uppercase tracking-[0.5em] font-bold font-display -rotate-90 origin-center mb-12">
+          Scroll
+        </span>
+        <div className="w-px h-24 bg-linear-to-b from-chassis/40 to-transparent" />
       </motion.div>
 
       <ResumeModal

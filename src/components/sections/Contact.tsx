@@ -1,479 +1,223 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useRef } from "react";
 import {
   Send,
-  User,
-  Mail,
-  MessageSquare,
-  CheckCircle,
-  AlertCircle,
   Code2,
   Share2,
+  Target,
   Zap,
-  X,
+  Activity,
+  Loader2,
+  CheckCircle,
 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { SectionHeading } from "../ui/SectionHeading";
-import { GlassCard } from "../ui/GlassCard";
+import { motion, AnimatePresence } from "framer-motion";
 
 export const Contact = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
-  const [toastVisible, setToastVisible] = useState(false);
-  const toastTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
-  const [formState, setFormState] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [errors, setErrors] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
-  const [touched, setTouched] = useState({
-    name: false,
-    email: false,
-    message: false,
-  });
-
-  // Validation logic
-  const validateField = (name: string, value: string) => {
-    switch (name) {
-      case "name":
-        if (!value.trim()) return "Name is required";
-        if (value.trim().length < 2)
-          return "Name must be at least 2 characters";
-        return "";
-      case "email":
-        if (!value.trim()) return "Email is required";
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(value))
-          return "Please enter a valid email address";
-        return "";
-      case "message":
-        if (!value.trim()) return "Message is required";
-        if (value.trim().length < 10)
-          return "Message must be at least 10 characters";
-        return "";
-      default:
-        return "";
-    }
-  };
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    const fieldKey =
-      name === "from_name"
-        ? "name"
-        : name === "from_email"
-          ? "email"
-          : "message";
-    setFormState((prev) => ({ ...prev, [fieldKey]: value }));
-    if (touched[fieldKey as keyof typeof touched]) {
-      setErrors((prev) => ({
-        ...prev,
-        [fieldKey]: validateField(fieldKey, value),
-      }));
-    }
-  };
-
-  const handleBlur = (
-    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
-  ) => {
-    const { name, value } = e.target;
-    const fieldKey =
-      name === "from_name"
-        ? "name"
-        : name === "from_email"
-          ? "email"
-          : "message";
-    setTouched((prev) => ({ ...prev, [fieldKey]: true }));
-    setErrors((prev) => ({
-      ...prev,
-      [fieldKey]: validateField(fieldKey, value),
-    }));
-  };
-
-  const showToast = (type: "success" | "error") => {
-    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    setStatus(type);
-    setToastVisible(true);
-    toastTimeoutRef.current = setTimeout(() => {
-      setToastVisible(false);
-      setStatus("idle");
-    }, 5000);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formRef.current) return;
-
-    // Validate all fields
-    const newErrors = {
-      name: validateField("name", formState.name),
-      email: validateField("email", formState.email),
-      message: validateField("message", formState.message),
-    };
-    setErrors(newErrors);
-    setTouched({ name: true, email: true, message: true });
-
-    if (Object.values(newErrors).some((err) => err !== "")) {
-      // Shake animation on error fields
-      const errorInputs = document.querySelectorAll(".has-error");
-      errorInputs.forEach((el) => {
-        el.classList.add("animate-shake");
-        setTimeout(() => el.classList.remove("animate-shake"), 500);
-      });
-      return;
-    }
-
     setIsSubmitting(true);
+    setStatus("idle");
 
     try {
       await emailjs.sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID || "",
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID || "",
-        formRef.current,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY || "",
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        formRef.current!,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       );
-      showToast("success");
-      setFormState({ name: "", email: "", message: "" });
-      setTouched({ name: false, email: false, message: false });
-    } catch (error) {
-      console.error("EmailJS Error:", error);
-      showToast("error");
-    } finally {
+
       setIsSubmitting(false);
+      setStatus("success");
+      formRef.current?.reset();
+
+      setTimeout(() => setStatus("idle"), 5000);
+    } catch (error) {
+      console.error("Transmission Error:", error);
+      setIsSubmitting(false);
+      setStatus("error");
+      setTimeout(() => setStatus("idle"), 5000);
     }
-  };
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-    };
-  }, []);
-
-  const socialLinks = [
-    {
-      icon: Code2,
-      href: "https://github.com/yourusername",
-      label: "GitHub",
-      color: "hover:text-neonBlue",
-    },
-    {
-      icon: Share2,
-      href: "https://linkedin.com/in/yourusername",
-      label: "LinkedIn",
-      color: "hover:text-neonPurple",
-    },
-    {
-      icon: Zap,
-      href: "https://twitter.com/yourusername",
-      label: "Twitter",
-      color: "hover:text-neonPink",
-    },
-  ];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1, delayChildren: 0.2 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
   };
 
   return (
     <section
       id="contact-form"
-      className="py-24 px-6 md:px-20 max-w-5xl mx-auto relative z-10"
+      className="py-32 px-6 md:px-24 bg-chassis relative overflow-hidden"
     >
-      <SectionHeading>Get In Touch</SectionHeading>
+      {/* Background technical elements */}
+      <div className="absolute inset-0 checkered-pattern opacity-[0.04]" />
+      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-ignitionRed to-transparent opacity-20" />
 
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-50px" }}
-        variants={containerVariants}
-      >
-        <GlassCard className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6 md:p-8">
-          {/* Animated gradient orbs */}
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-neonBlue/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-neonPink/20 rounded-full blur-3xl animate-pulse delay-1000" />
+      {/* Aesthetic Aero Glow */}
+      <div className="absolute -bottom-1/4 -left-1/4 w-1/2 h-1/2 bg-ignitionRed/5 blur-[120px] rounded-full" />
 
-          <form
-            ref={formRef}
-            onSubmit={handleSubmit}
-            className="relative z-10 space-y-6"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name Input */}
-              <motion.div variants={itemVariants} className="space-y-1">
-                <div
-                  className={`relative ${touched.name && errors.name ? "has-error" : ""}`}
-                >
+      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
+        {/* Left Side: Technical Info */}
+        <div className="lg:col-span-5">
+          <div className="inline-flex items-center gap-3 px-3 py-1 bg-white/5 border-l-2 border-telemetryYellow mb-10">
+            <Activity
+              size={12}
+              className="text-telemetryYellow animate-pulse"
+            />
+            <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em]">
+              Signal_Status: Ready
+            </span>
+          </div>
+
+          <SectionHeading align="left">
+            <span className="text-white">RADIO</span> <br />
+            <span className="text-ignitionRed italic">UPLINK</span>
+          </SectionHeading>
+
+          <p className="text-white/50 text-xl font-display uppercase tracking-tight max-w-sm mt-10 leading-tight border-l border-white/10 pl-8">
+            Establish a high-bandwidth connection for{" "}
+            <span className="text-white font-bold italic">
+              technical architectural
+            </span>{" "}
+            inquiries and mission-critical collaborations.
+          </p>
+
+          <div className="mt-24 grid grid-cols-2 gap-4 max-w-sm">
+            {[
+              { label: "GitHub", icon: Code2, value: "/DB105" },
+              { label: "LinkedIn", icon: Share2, value: "/divyansh-b" },
+              { label: "Location", icon: Target, value: "Sector_NCR" },
+              { label: "Direct", icon: Zap, value: "Email_Open" },
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="p-4 bg-white/5 border-b border-white/5 hover:bg-white/10 transition-colors group cursor-default"
+              >
+                <item.icon
+                  size={16}
+                  className="text-telemetryYellow mb-3 group-hover:text-ignitionRed transition-colors"
+                />
+                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] block mb-1">
+                  {item.label}
+                </span>
+                <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                  {item.value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Side: Form */}
+        <div className="lg:col-span-7 bg-surface-base p-8 md:p-16 rounded-sm relative shadow-2xl border-t-8 border-ignitionRed">
+          {/* Internal technical markings */}
+          <div className="absolute top-4 right-6 text-[10px] font-black text-chassis/10 uppercase tracking-widest italic">
+            Manual_Override_v4.2
+          </div>
+          <div className="absolute bottom-4 left-6 w-12 h-1 w-chassis/5 bg-chassis/5" />
+
+          <form ref={formRef} onSubmit={handleSubmit} className="space-y-12">
+            <div className="space-y-10">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                {/* NAME */}
+                <div className="relative group">
+                  <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
+                    Pilot_Name
+                  </label>
                   <input
-                    type="text"
-                    id="name"
                     name="from_name"
-                    value={formState.name}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-transparent focus:outline-none transition-all duration-200 ${
-                      touched.name && errors.name
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/50"
-                        : "border-white/10 focus:border-neonBlue focus:ring-1 focus:ring-neonBlue/50"
-                    }`}
-                    placeholder=" "
+                    type="text"
+                    placeholder="ENTER NAME"
+                    required
+                    className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all"
                   />
-                  <label
-                    htmlFor="name"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonBlue bg-white/5 px-1"
-                  >
-                    <span className="flex items-center gap-1">
-                      <User size={14} /> Name *
-                    </span>
-                  </label>
                 </div>
-                <AnimatePresence>
-                  {touched.name && errors.name && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="text-red-400 text-xs mt-1 ml-1"
-                    >
-                      {errors.name}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
 
-              {/* Email Input */}
-              <motion.div variants={itemVariants} className="space-y-1">
-                <div
-                  className={`relative ${touched.email && errors.email ? "has-error" : ""}`}
-                >
-                  <input
-                    type="email"
-                    id="email"
-                    name="from_email"
-                    value={formState.email}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-transparent focus:outline-none transition-all duration-200 ${
-                      touched.email && errors.email
-                        ? "border-red-500 focus:border-red-500 focus:ring-red-500/50"
-                        : "border-white/10 focus:border-neonPurple focus:ring-1 focus:ring-neonPurple/50"
-                    }`}
-                    placeholder=" "
-                  />
-                  <label
-                    htmlFor="email"
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-1/2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonPurple bg-white/5 px-1"
-                  >
-                    <span className="flex items-center gap-1">
-                      <Mail size={14} /> Email *
-                    </span>
+                {/* EMAIL */}
+                <div className="relative group">
+                  <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
+                    Return_Channel
                   </label>
+                  <input
+                    name="from_email"
+                    type="email"
+                    placeholder="USER@DOMAIN.COM"
+                    required
+                    className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all"
+                  />
                 </div>
-                <AnimatePresence>
-                  {touched.email && errors.email && (
-                    <motion.p
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0 }}
-                      className="text-red-400 text-xs mt-1 ml-1"
-                    >
-                      {errors.email}
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </motion.div>
+              </div>
+
+              {/* MESSAGE */}
+              <div className="relative group">
+                <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
+                  Data_Payload
+                </label>
+                <textarea
+                  name="message"
+                  placeholder="ENCODE YOUR MESSAGE BUFFER HERE..."
+                  rows={4}
+                  required
+                  className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all resize-none"
+                />
+              </div>
             </div>
 
-            {/* Hidden Time Field */}
-            <input
-              type="hidden"
-              name="time"
-              value={new Date().toLocaleString()}
-            />
-
-            {/* Message Input */}
-            <motion.div variants={itemVariants} className="space-y-1">
-              <div
-                className={`relative ${touched.message && errors.message ? "has-error" : ""}`}
-              >
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={5}
-                  value={formState.message}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={`peer w-full bg-white/5 border rounded-xl px-4 py-3 text-white placeholder-transparent focus:outline-none transition-all duration-200 resize-none ${
-                    touched.message && errors.message
-                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/50"
-                      : "border-white/10 focus:border-neonPink focus:ring-1 focus:ring-neonPink/50"
-                  }`}
-                  placeholder=" "
-                />
-                <label
-                  htmlFor="message"
-                  className="absolute left-3 top-4 text-gray-400 text-sm transition-all duration-200 pointer-events-none peer-placeholder-shown:top-4 peer-placeholder-shown:text-sm peer-focus:top-0 peer-focus:-translate-y-1/2 peer-focus:text-xs peer-focus:text-neonPink bg-white/5 px-1"
-                >
-                  <span className="flex items-center gap-1">
-                    <MessageSquare size={14} /> Message *
-                  </span>
-                </label>
-              </div>
-              <AnimatePresence>
-                {touched.message && errors.message && (
-                  <motion.p
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="text-red-400 text-xs mt-1 ml-1"
-                  >
-                    {errors.message}
-                  </motion.p>
-                )}
-              </AnimatePresence>
-            </motion.div>
-
-            {/* Submit Button */}
-            <motion.div variants={itemVariants}>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                animate={status === "error" ? { x: [-10, 10, -5, 5, 0] } : {}}
-                transition={{ duration: 0.3 }}
-                type="submit"
-                disabled={isSubmitting}
-                className={`w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-2 relative overflow-hidden ${
-                  status === "success"
-                    ? "bg-linear-to-r from-green-500 to-emerald-500 shadow-green-500/20"
-                    : status === "error"
-                      ? "bg-linear-to-r from-red-500 to-rose-500 shadow-red-500/20"
-                      : "bg-linear-to-r from-neonBlue via-neonPurple to-neonPink hover:shadow-neonBlue/50 hover:shadow-xl"
-                } ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""}`}
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                    <span>Sending...</span>
-                  </>
-                ) : status === "success" ? (
-                  <>
-                    <CheckCircle size={20} className="animate-bounce" />
-                    <span>Message Sent!</span>
-                  </>
-                ) : status === "error" ? (
-                  <>
-                    <AlertCircle size={20} />
-                    <span>Failed to Send</span>
-                  </>
-                ) : (
-                  <>
-                    <Send size={20} />
-                    <span>Send Message</span>
-                  </>
-                )}
-              </motion.button>
-            </motion.div>
-
-            {/* Social Links */}
-            <motion.div variants={itemVariants} className="pt-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-white/10" />
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-3 bg-white/5 text-gray-400 rounded-full">
-                    Or connect via
-                  </span>
-                </div>
-              </div>
-              <div className="flex justify-center gap-6 mt-4">
-                {socialLinks.map((social, idx) => (
-                  <motion.a
-                    key={idx}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    whileHover={{ y: -3, scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`text-gray-400 transition-all duration-200 ${social.color}`}
-                    aria-label={social.label}
-                  >
-                    <social.icon size={22} />
-                  </motion.a>
-                ))}
-              </div>
-            </motion.div>
-          </form>
-        </GlassCard>
-      </motion.div>
-
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {toastVisible && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, x: "-50%" }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50"
-          >
-            <div
-              className={`flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl backdrop-blur-md border ${
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`w-full py-6 font-black uppercase tracking-[0.4em] text-xs transition-all flex items-center justify-center gap-4 relative overflow-hidden group shadow-2xl ${
                 status === "success"
-                  ? "bg-green-500/20 border-green-500/50 text-green-400"
-                  : "bg-red-500/20 border-red-500/50 text-red-400"
+                  ? "bg-green-600 text-white"
+                  : "bg-ignitionRed text-white hover:bg-chassis hover:text-telemetryYellow shadow-ignitionRed/30"
               }`}
             >
-              {status === "success" ? (
-                <CheckCircle size={20} />
-              ) : (
-                <AlertCircle size={20} />
-              )}
-              <span className="font-medium">
-                {status === "success"
-                  ? "Thanks for reaching out! I'll get back to you soon."
-                  : "Oops! Something went wrong. Please try again later."}
-              </span>
-              <button
-                onClick={() => setToastVisible(false)}
-                className="ml-2 hover:opacity-70 transition"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* High-visibility yellow notch */}
+              <div className="absolute top-0 right-0 w-3 h-3 bg-telemetryYellow transform translate-x-1.5 -translate-y-1.5 rotate-45 group-hover:w-4 group-hover:h-4 transition-all" />
 
-      {/* Shake animation */}
-      <style>{`
-        @keyframes shake {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-5px); }
-          75% { transform: translateX(5px); }
-        }
-        .animate-shake {
-          animation: shake 0.3s ease-in-out;
-        }
-      `}</style>
+              <AnimatePresence mode="wait">
+                {isSubmitting ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-3"
+                  >
+                    <Loader2 size={16} className="animate-spin" />
+                    <span>Synchronizing...</span>
+                  </motion.div>
+                ) : status === "success" ? (
+                  <motion.div
+                    key="success"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-3"
+                  >
+                    <CheckCircle size={16} />
+                    <span>Signal Received</span>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="idle"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center gap-3"
+                  >
+                    <span>Execute Uplink Protocol</span>
+                    <Send
+                      size={16}
+                      className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </button>
+          </form>
+        </div>
+      </div>
     </section>
   );
 };

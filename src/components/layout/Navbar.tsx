@@ -1,207 +1,164 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import {
   Home,
   User,
   Code2,
   FolderCode,
   Briefcase,
-  GraduationCap,
   Mail,
   Menu,
   X,
+  Gauge,
 } from "lucide-react";
 
 const navItems = [
-  { id: "hero", label: "Home", icon: <Home size={20} /> },
-  { id: "about", label: "About", icon: <User size={20} /> },
-  { id: "skills", label: "Skills", icon: <Code2 size={20} /> },
-  { id: "projects", label: "Projects", icon: <FolderCode size={20} /> },
-  { id: "experience", label: "Experience", icon: <Briefcase size={20} /> },
-  { id: "education", label: "Education", icon: <GraduationCap size={20} /> },
-  { id: "contact-form", label: "Contact", icon: <Mail size={20} /> },
+  { id: "hero", label: "01 / PITS", icon: <Home size={18} /> },
+  { id: "about", label: "02 / CHASSIS", icon: <User size={18} /> },
+  { id: "skills", label: "03 / TELEMETRY", icon: <Code2 size={18} /> },
+  { id: "projects", label: "04 / CIRCUIT", icon: <FolderCode size={18} /> },
+  { id: "experience", label: "05 / PADDOCK", icon: <Briefcase size={18} /> },
+  { id: "contact-form", label: "06 / RADIO", icon: <Mail size={18} /> },
 ];
 
 export const Navbar = () => {
   const [activeSection, setActiveSection] = useState("hero");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(true);
+  const { scrollY } = useScroll();
 
-  // Intersection Observer for active section detection
+  useMotionValueEvent(scrollY, "change", (current) => {
+    const previous = scrollY.getPrevious() ?? 0;
+    const diff = current - previous;
+    
+    // Show navbar if scrolling up or at the very top
+    if (current < 50) {
+      setVisible(true);
+    } else if (diff > 0) {
+      // Scrolling down
+      setVisible(false);
+    } else {
+      // Scrolling up
+      setVisible(true);
+    }
+  });
+
   useEffect(() => {
-    const sections = navItems
-      .map((item) => document.getElementById(item.id))
-      .filter(Boolean);
-    if (sections.length === 0) return;
+    const sections = navItems.map((item) => document.getElementById(item.id)).filter(Boolean);
+    
+    // Store intersection ratios for all sections
+    const ratios: Record<string, number> = {};
 
-    observerRef.current = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-          }
+          ratios[entry.target.id] = entry.intersectionRatio;
         });
+
+        // Find the section with the highest intersection ratio
+        let maxRatio = 0;
+        let activeId = activeSection;
+
+        for (const [id, ratio] of Object.entries(ratios)) {
+          if (ratio > maxRatio) {
+            maxRatio = ratio;
+            activeId = id;
+          }
+        }
+
+        // Only update if we have a clear winner with sufficient visibility
+        if (maxRatio > 0.1) {
+          setActiveSection(activeId);
+        }
       },
-      { threshold: 0.3, rootMargin: "-20% 0px -20% 0px" },
+      { 
+        // More granular thresholds for smoother transition detection
+        threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
+        rootMargin: "-10% 0px -10% 0px" 
+      }
     );
 
-    sections.forEach((section) => {
-      if (section) observerRef.current?.observe(section);
-    });
+    sections.forEach((section) => section && observer.observe(section));
 
-    return () => {
-      if (observerRef.current) observerRef.current.disconnect();
-    };
-  }, []);
-
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-    if (isMobileMenuOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.body.style.overflow = "unset";
-    };
-  }, [isMobileMenuOpen]);
+    return () => observer.disconnect();
+  }, [activeSection]);
 
   const scrollToSection = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
+      element.scrollIntoView({ behavior: "smooth" });
       setIsMobileMenuOpen(false);
     }
   };
 
-  // Desktop navigation (fixed left sidebar)
-  const DesktopNav = () => (
-    <div className="fixed left-6 top-1/2 -translate-y-1/2 z-50 hidden lg:flex flex-col gap-4">
-      {navItems.map((item) => {
-        const isActive = activeSection === item.id;
-        return (
-          <div key={item.id} className="group relative flex items-center">
-            {/* Tooltip */}
-            <div className="absolute left-full ml-4 px-3 py-1.5 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg text-white text-xs font-medium whitespace-nowrap opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 pointer-events-none shadow-lg">
-              {item.label}
-            </div>
-
-            {/* Nav Button */}
-            <button
-              onClick={() => scrollToSection(item.id)}
-              className={`relative w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 border backdrop-blur-sm ${
-                isActive
-                  ? "bg-neonBlue/20 border-neonBlue text-neonBlue shadow-[0_0_12px_#00f3ff]"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:bg-white/10 hover:border-white/30 hover:text-white"
-              }`}
-              aria-label={`Navigate to ${item.label}`}
-            >
-              {item.icon}
-              {/* Active dot indicator */}
-              {isActive && (
-                <motion.div
-                  layoutId="activeDot"
-                  className="absolute -right-1 -top-1 w-2.5 h-2.5 rounded-full bg-neonBlue shadow-[0_0_8px_#00f3ff]"
-                  transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                />
-              )}
-            </button>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // Mobile Hamburger Menu
-  const MobileNav = () => (
-    <div className="lg:hidden fixed top-4 right-4 z-50">
-      <button
-        onClick={() => setIsMobileMenuOpen(true)}
-        className="w-12 h-12 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all"
-        aria-label="Open menu"
-      >
-        <Menu size={24} />
-      </button>
-
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
-              onClick={() => setIsMobileMenuOpen(false)}
-            />
-
-            {/* Sidebar */}
-            <motion.div
-              ref={menuRef}
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed right-0 top-0 h-full w-64 bg-black/80 backdrop-blur-xl border-l border-white/20 z-50 shadow-2xl"
-            >
-              <div className="flex justify-end p-4">
-                <button
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-10 h-10 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-white/20 transition"
-                  aria-label="Close menu"
-                >
-                  <X size={20} />
-                </button>
-              </div>
-
-              <div className="flex flex-col gap-2 px-4">
-                {navItems.map((item, idx) => {
-                  const isActive = activeSection === item.id;
-                  return (
-                    <motion.button
-                      key={item.id}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      onClick={() => scrollToSection(item.id)}
-                      className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-                        isActive
-                          ? "bg-neonBlue/20 text-neonBlue border border-neonBlue/50 shadow-neon"
-                          : "text-gray-300 hover:bg-white/10 hover:text-white"
-                      }`}
-                    >
-                      {item.icon}
-                      <span className="font-medium">{item.label}</span>
-                      {isActive && (
-                        <motion.div
-                          layoutId="mobileActiveDot"
-                          className="ml-auto w-2 h-2 rounded-full bg-neonBlue shadow-[0_0_6px_#00f3ff]"
-                        />
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-
   return (
     <>
-      <DesktopNav />
-      <MobileNav />
+      {/* Desktop Floating Nav */}
+      <motion.nav 
+        initial={{ y: 0, x: "-50%", opacity: 1 }}
+        animate={{ 
+          y: visible ? 0 : -150, 
+          opacity: visible ? 1 : 0 
+        }}
+        transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
+        className="fixed top-8 left-1/2 z-50 w-[95%] max-w-5xl"
+      >
+        <div className="bg-chassis/80 backdrop-blur-xl border-t border-white/10 px-8 py-4 flex items-center justify-between rounded-sm aero-shadow">
+          <div className="flex items-center gap-4 group cursor-pointer" onClick={() => scrollToSection('hero')}>
+            <div className="bg-ignitionRed p-2 rounded-sm rotate-45 group-hover:rotate-0 transition-transform duration-500 shadow-lg shadow-ignitionRed/20">
+              <Gauge className="text-white -rotate-45 group-hover:rotate-0 transition-transform duration-500" size={18} />
+            </div>
+            <span className="text-white font-display font-black uppercase tracking-widest text-xs hidden md:block italic">Ansh Bhardwaj / DB105</span>
+          </div>
+
+          <div className="hidden lg:flex items-center gap-1">
+            {navItems.map((item) => {
+              const isActive = activeSection === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className={`px-4 py-2 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 relative group ${isActive ? 'text-white' : 'text-white/40 hover:text-white'}`}
+                >
+                  {item.label}
+                  {isActive && (
+                    <motion.div layoutId="nav-active" className="absolute bottom-0 left-4 right-4 h-0.5 bg-ignitionRed" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          <button className="lg:hidden text-white" onClick={() => setIsMobileMenuOpen(true)}>
+            <Menu size={24} />
+          </button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu Refactored */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-[100] bg-chassis p-10 flex flex-col justify-center gap-8"
+          >
+            <button className="absolute top-10 right-10 text-white" onClick={() => setIsMobileMenuOpen(false)}>
+              <X size={32} />
+            </button>
+            {navItems.map((item, idx) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className="text-4xl md:text-6xl font-display font-black text-white uppercase italic tracking-tighter hover:text-ignitionRed transition-colors text-left"
+              >
+                <span className="text-lg text-ignitionRed mr-6 italic">0{idx + 1}</span> {item.label.split(' / ')[1]}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

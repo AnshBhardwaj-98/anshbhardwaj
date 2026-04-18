@@ -1,5 +1,4 @@
 import { motion, useScroll, useSpring } from "framer-motion";
-import { CustomCursor } from "./components/ui/CustomCursor";
 import { Navbar } from "./components/layout/Navbar";
 import { Hero } from "./components/sections/Hero";
 import { About } from "./components/sections/About";
@@ -19,23 +18,25 @@ export default function App() {
   });
 
   return (
-    <div className="relative w-full">
-      {/* Scroll Progress Bar */}
+    <div className="relative w-full bg-surface-base selection:bg-ignitionRed selection:text-white">
+      {/* High-Performance Progress Bar */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-linear-to-r from-neonBlue via-neonPurple to-neonPink transform-origin-0 z-50"
+        className="fixed top-0 left-0 right-0 h-1.5 bg-ignitionRed origin-left z-[100]"
         style={{ scaleX }}
       />
 
       <Navbar />
-      <CustomCursor />
 
-      <Hero />
-      <About />
-      <Skills />
-      <Projects />
-      <Experience />
-      <Education />
-      <Contact />
+      <main className="relative">
+        <Hero />
+        <About />
+        <Skills />
+        <Projects />
+        <Experience />
+        <Education />
+        <Contact />
+      </main>
+
       <Footer />
     </div>
   );
