@@ -8,6 +8,7 @@ import {
   Activity,
   Loader2,
   CheckCircle,
+  Mail,
 } from "lucide-react";
 import emailjs from "@emailjs/browser";
 import { SectionHeading } from "../ui/SectionHeading";
@@ -84,27 +85,59 @@ export const Contact = () => {
 
           <div className="mt-24 grid grid-cols-2 gap-4 max-w-sm">
             {[
-              { label: "GitHub", icon: Code2, value: "/DB105" },
-              { label: "LinkedIn", icon: Share2, value: "/divyansh-b" },
-              { label: "Location", icon: Target, value: "Sector_NCR" },
-              { label: "Direct", icon: Zap, value: "Email_Open" },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className="p-4 bg-white/5 border-b border-white/5 hover:bg-white/10 transition-colors group cursor-default"
-              >
-                <item.icon
-                  size={16}
-                  className="text-telemetryYellow mb-3 group-hover:text-ignitionRed transition-colors"
-                />
-                <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] block mb-1">
-                  {item.label}
-                </span>
-                <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                  {item.value}
-                </span>
-              </div>
-            ))}
+              {
+                label: "GitHub",
+                icon: Code2,
+                value: "/DB105",
+                href: "https://github.com/AnshBhardwaj-98",
+              },
+              {
+                label: "LinkedIn",
+                icon: Share2,
+                value: "/divyansh-b",
+                href: "https://linkedin.com/in/divyanshbhardwaj001",
+              },
+              {
+                label: "Location",
+                icon: Target,
+                value: "Sector_NCR",
+                href: "#",
+              },
+              {
+                label: "LeetCode",
+                icon: Zap,
+                value: "SIGNAL_OUT",
+                href: "https://leetcode.com/u/itsanshbhardwaj/",
+              },
+            ].map((item, i) => {
+              const isClickable = item.href && item.href !== "#";
+              return (
+                <a
+                  key={i}
+                  href={item.href}
+                  target={item.href?.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    item.href?.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
+                  className={`p-4 bg-white/5 border-b border-white/5 hover:bg-white/10 transition-colors group ${
+                    isClickable ? "cursor-pointer" : "cursor-default"
+                  }`}
+                >
+                  <item.icon
+                    size={16}
+                    className="text-telemetryYellow mb-3 group-hover:text-ignitionRed transition-colors"
+                  />
+                  <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] block mb-1">
+                    {item.label}
+                  </span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
+                    {item.value}
+                  </span>
+                </a>
+              );
+            })}
           </div>
         </div>
 
@@ -215,6 +248,25 @@ export const Contact = () => {
                 )}
               </AnimatePresence>
             </button>
+
+            {/* Direct Email Option */}
+            <div className="mt-12 flex items-center justify-center gap-6">
+              <div className="h-px flex-1 bg-chassis/10" />
+              <span className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em]">
+                OR
+              </span>
+              <div className="h-px flex-1 bg-chassis/10" />
+            </div>
+
+            <div className="w-full mt-8 p-6 bg-chassis/10 hover:bg-chassis/20 border border-chassis/20 text-center transition-all flex items-center justify-center gap-3 group">
+              <Mail
+                size={18}
+                className="text-ignitionRed   transition-colors"
+              />
+              <span className="text-sm font-black text-chassis uppercase tracking-widest group-hover:text-ignitionRed transition-colors">
+                contact@anshbhardwaj.com
+              </span>
+            </div>
           </form>
         </div>
       </div>

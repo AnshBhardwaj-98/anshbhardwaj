@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowUp, Flag, Globe, Zap, Code2, Share2, Target } from "lucide-react";
+import {
+  ArrowUp,
+  Flag,
+  Globe,
+  Zap,
+  Code2,
+  Share2,
+  Target,
+  Mail,
+} from "lucide-react";
 
 export const Footer = () => {
   const [showBackToTop, setShowBackToTop] = useState(false);
@@ -24,6 +33,12 @@ export const Footer = () => {
       icon: Share2,
       href: "https://linkedin.com/in/divyanshbhardwaj001",
       value: "NETWORK_ID",
+    },
+    {
+      label: "EMAIL",
+      icon: Mail,
+      href: "mailto:contact@anshbhardwaj.com",
+      value: "DIRECT_CONTACT",
     },
     {
       label: "LEETCODE",
