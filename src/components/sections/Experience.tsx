@@ -29,7 +29,7 @@ const experiences = [
 export const Experience = () => {
   return (
     <section id="experience" className="py-32 px-6 md:px-24 bg-surface-layered relative">
-      <SectionHeading align="left">Paddock / Experience</SectionHeading>
+      <SectionHeading align="left">Experience</SectionHeading>
 
       <div className="space-y-1 mt-20">
         {experiences.map((exp, index) => (

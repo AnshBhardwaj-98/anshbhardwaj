@@ -5,7 +5,7 @@ export const Education = () => {
     <section id="education" className="py-32 px-6 md:px-24 bg-surface-base relative overflow-hidden">
       <div className="absolute inset-0 checkered-pattern opacity-[0.01]" />
       
-      <SectionHeading align="right">Engineering Academy</SectionHeading>
+      <SectionHeading align="right">Education</SectionHeading>
       
       <div className="bg-surface-container p-12 md:p-20 relative z-10 hover:bg-surface-layered transition-colors duration-500">
         <div className="flex flex-col md:flex-row justify-between items-start gap-10">
@@ -19,7 +19,7 @@ export const Education = () => {
           </div>
           
           <div className="w-full md:w-1/3 bg-surface-base p-8 border-l-4 border-telemetryYellow">
-            <h4 className="text-[10px] font-black uppercase tracking-widest text-chassis/40 mb-4">Core Track</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-widest text-chassis/40 mb-4">Coursework</h4>
             <ul className="space-y-3">
               {['Advanced AI', 'Deep Learning', 'System Arch', 'Robotics'].map(item => (
                 <li key={item} className="text-sm font-bold uppercase text-chassis">{item}</li>

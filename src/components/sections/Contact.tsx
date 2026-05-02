@@ -66,21 +66,21 @@ export const Contact = () => {
               className="text-telemetryYellow animate-pulse"
             />
             <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em]">
-              Signal_Status: Ready
+              Available for Work
             </span>
           </div>
 
           <SectionHeading align="left">
-            <span className="text-white">RADIO</span> <br />
-            <span className="text-ignitionRed italic">UPLINK</span>
+            <span className="text-white">GET IN</span> <br />
+            <span className="text-ignitionRed italic">TOUCH</span>
           </SectionHeading>
 
           <p className="text-white/50 text-xl font-display uppercase tracking-tight max-w-sm mt-10 leading-tight border-l border-white/10 pl-8">
-            Establish a high-bandwidth connection for{" "}
+            Establish a connection for{" "}
             <span className="text-white font-bold italic">
-              technical architectural
+              technical
             </span>{" "}
-            inquiries and mission-critical collaborations.
+            inquiries and collaborations.
           </p>
 
           <div className="mt-24 grid grid-cols-2 gap-4 max-w-sm">
@@ -88,25 +88,25 @@ export const Contact = () => {
               {
                 label: "GitHub",
                 icon: Code2,
-                value: "/DB105",
+                value: "@AnshBhardwaj-98",
                 href: "https://github.com/AnshBhardwaj-98",
               },
               {
                 label: "LinkedIn",
                 icon: Share2,
-                value: "/divyansh-b",
+                value: "divyanshbhardwaj001",
                 href: "https://linkedin.com/in/divyanshbhardwaj001",
               },
               {
                 label: "Location",
                 icon: Target,
-                value: "Sector_NCR",
+                value: "NCR, India",
                 href: "#",
               },
               {
                 label: "LeetCode",
                 icon: Zap,
-                value: "SIGNAL_OUT",
+                value: "itsanshbhardwaj",
                 href: "https://leetcode.com/u/itsanshbhardwaj/",
               },
             ].map((item, i) => {
@@ -155,7 +155,7 @@ export const Contact = () => {
                 {/* NAME */}
                 <div className="relative group">
                   <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                    Pilot_Name
+                    Name
                   </label>
                   <input
                     name="from_name"
@@ -169,7 +169,7 @@ export const Contact = () => {
                 {/* EMAIL */}
                 <div className="relative group">
                   <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                    Return_Channel
+                    Email
                   </label>
                   <input
                     name="from_email"
@@ -184,11 +184,11 @@ export const Contact = () => {
               {/* MESSAGE */}
               <div className="relative group">
                 <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                  Data_Payload
+                  Message
                 </label>
                 <textarea
                   name="message"
-                  placeholder="ENCODE YOUR MESSAGE BUFFER HERE..."
+                  placeholder="ENTER YOUR MESSAGE HERE..."
                   rows={4}
                   required
                   className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all resize-none"
@@ -218,7 +218,7 @@ export const Contact = () => {
                     className="flex items-center gap-3"
                   >
                     <Loader2 size={16} className="animate-spin" />
-                    <span>Synchronizing...</span>
+                    <span>Sending...</span>
                   </motion.div>
                 ) : status === "success" ? (
                   <motion.div
@@ -229,7 +229,7 @@ export const Contact = () => {
                     className="flex items-center gap-3"
                   >
                     <CheckCircle size={16} />
-                    <span>Signal Received</span>
+                    <span>Message Sent</span>
                   </motion.div>
                 ) : (
                   <motion.div
@@ -239,7 +239,7 @@ export const Contact = () => {
                     exit={{ opacity: 0 }}
                     className="flex items-center gap-3"
                   >
-                    <span>Execute Uplink Protocol</span>
+                    <span>Send Message</span>
                     <Send
                       size={16}
                       className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"

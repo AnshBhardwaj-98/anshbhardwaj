@@ -54,13 +54,13 @@ export const Projects = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-20 gap-8">
         <SectionHeading align="left">
-          CIRCUIT / <br />
-          <span className="text-ignitionRed italic">SOLUTIONS</span>
+          Featured <br />
+          <span className="text-ignitionRed italic">Projects</span>
         </SectionHeading>
 
         <div className="hidden md:flex flex-col items-end text-right">
           <span className="text-[10px] font-black uppercase tracking-[0.4em] text-chassis/30 mb-2">
-            Portfolio_Registry.v2
+            My Work
           </span>
           <div className="h-0.5 w-32 bg-chassis/10" />
         </div>
@@ -114,7 +114,7 @@ export const Projects = () => {
                   </div>
                   {project.featured && (
                     <div className="px-3 py-1.5 bg-ignitionRed text-white text-[9px] font-black uppercase tracking-widest italic flex items-center gap-2">
-                      <Zap size={10} /> Mission_Critical
+                      <Zap size={10} /> Featured
                     </div>
                   )}
                 </div>
@@ -148,7 +148,7 @@ export const Projects = () => {
                     rel="noopener noreferrer"
                     className="flex items-center gap-4 text-[11px] font-black uppercase tracking-[0.3em] text-chassis group-hover:text-ignitionRed transition-all"
                   >
-                    Analyze Entry{" "}
+                    View Project{" "}
                     <ArrowRight
                       size={16}
                       className="group-hover:translate-x-2 transition-transform"

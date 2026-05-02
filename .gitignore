@@ -92,3 +92,4 @@ gsd-temp/
 .turbo/
 .vercel/
 .netlify/
+.vscode/

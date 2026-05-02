@@ -119,7 +119,7 @@ export const Hero = () => {
         >
           <Activity size={14} className="text-telemetryYellow animate-pulse" />
           <span className="text-[11px] font-display font-bold uppercase tracking-[0.25em]">
-            System Status: Optimal / {new Date().getFullYear()}
+            System Status: Online / {new Date().getFullYear()}
           </span>
         </motion.div>
 
@@ -158,7 +158,7 @@ export const Hero = () => {
             >
               Generative AI Engineer at{" "}
               <span className="text-ignitionRed">Synergy Labs</span>.
-              Architecting high-throughput intelligence.
+              Architecting intelligent and scalable solutions.
             </motion.p>
 
             <motion.div
@@ -173,7 +173,7 @@ export const Hero = () => {
                 >
                   {/* High-visibility yellow notch */}
                   <div className="absolute top-0 right-0 w-2 h-2 bg-telemetryYellow" />
-                  <span className="relative z-10">Launch Projects</span>
+                  <span className="relative z-10">View Projects</span>
                 </a>
               </Magnetic>
               <Magnetic strength={0.2}>
@@ -183,7 +183,7 @@ export const Hero = () => {
                   aria-label="Open resume modal"
                 >
                   <Download size={18} className="text-white" />
-                  Telemetry/Resume
+                  Download Resume
                 </button>
               </Magnetic>
             </motion.div>

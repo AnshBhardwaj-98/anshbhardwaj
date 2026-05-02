@@ -15,7 +15,7 @@ import { SectionHeading } from "../ui/SectionHeading";
 /* ─── Neural-F1 Hybrid Taxonomy ──────────────────────────────────── */
 const LAYERS = [
   {
-    label: "INPUT / INTAKE",
+    label: "LANGUAGES",
     nodes: [
       {
         id: "lang",
@@ -36,7 +36,7 @@ const LAYERS = [
     ],
   },
   {
-    label: "SYNAPSE / CORE",
+    label: "BACKEND & AI",
     nodes: [
       {
         id: "ai",
@@ -72,7 +72,7 @@ const LAYERS = [
     ],
   },
   {
-    label: "OUTPUT / AERO",
+    label: "FRONTEND",
     nodes: [
       {
         id: "interface",
@@ -145,12 +145,12 @@ export const Skills = () => {
 
       <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
         <SectionHeading align="left">
-          Neural Telemetry / Technical Suite
+          Skills & Tools
         </SectionHeading>
         <div className="flex items-center gap-6 px-6 py-3 bg-chassis text-white rounded-none border-b-4 border-ignitionRed shadow-2xl">
           <Activity size={16} className="text-telemetryYellow animate-pulse" />
           <span className="text-[10px] font-black uppercase tracking-[0.3em]">
-            Processing Logic Stream
+            Tech Stack
           </span>
         </div>
       </div>
@@ -283,7 +283,7 @@ export const Skills = () => {
         {/* Right: Data Readout Modules */}
         <div className="lg:col-span-4 space-y-4">
           <h3 className="text-[10px] font-black uppercase tracking-[0.5em] text-chassis/40 mb-8 flex items-center gap-4">
-            <Cpu size={14} /> Telemetry_Stack.v3
+            <Cpu size={14} />             Technical Skills
           </h3>
 
           <div className="space-y-2">
@@ -308,7 +308,7 @@ export const Skills = () => {
                     <span
                       className={`text-[8px] font-bold uppercase tracking-widest ${hovered === node.id ? "text-telemetryYellow" : "text-chassis/40"}`}
                     >
-                      Node_Pulse_{node.id.toUpperCase()}
+                      Skill_Level_{node.id.toUpperCase()}
                     </span>
                   </div>
                   <div

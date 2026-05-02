@@ -25,7 +25,7 @@ export const About = () => {
     <section id="about" className="py-32 px-6 md:px-24 bg-surface-base relative overflow-hidden">
       <div className="absolute top-0 right-0 w-1/3 h-full carbon-fiber opacity-[0.05] pointer-events-none" />
       
-      <SectionHeading align="left">Chassis & Philosophy</SectionHeading>
+      <SectionHeading align="left">About Me</SectionHeading>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start relative z-10">
         {/* Story */}
@@ -38,7 +38,7 @@ export const About = () => {
               Pursuing a B.Tech in CS with focus on <span className="underline decoration-telemetryYellow decoration-4 underline-offset-8">AI & Machine Learning</span>.
             </p>
             <p>
-              My engineering philosophy is rooted in <span className="font-black italic">high-throughput execution</span> and minimalist architectural design.
+              My engineering philosophy is rooted in <span className="font-black italic">efficient execution</span> and minimalist architectural design.
             </p>
           </div>
 
@@ -54,7 +54,7 @@ export const About = () => {
 
         {/* Areas */}
         <div className="lg:col-span-5 space-y-4">
-          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-chassis/40 mb-6 block">Target Focus Areas</span>
+          <span className="text-[10px] font-black uppercase tracking-[0.4em] text-chassis/40 mb-6 block">What I Do</span>
           {focusAreas.map((area, index) => (
             <motion.div
               key={index}
