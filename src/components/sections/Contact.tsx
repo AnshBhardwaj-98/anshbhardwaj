@@ -8,7 +8,7 @@ import { GithubIcon, LinkedinIcon } from "../ui/BrandIcons";
 type Status = "idle" | "sending" | "success" | "error";
 
 const field =
-  "w-full bg-white/[0.03] border border-line px-4 py-3.5 text-cream placeholder:text-muted-dark focus:outline-none focus:border-neon transition-colors";
+  "w-full bg-white border border-line px-4 py-3.5 text-ink placeholder:text-muted-2 focus:outline-none focus:border-ink transition-colors";
 
 export const Contact = ({ onResume }: { onResume: () => void }) => {
   const formRef = useRef<HTMLFormElement>(null);
@@ -34,24 +34,23 @@ export const Contact = ({ onResume }: { onResume: () => void }) => {
   };
 
   return (
-    <section id="contact" className="relative min-h-screen flex items-center overflow-hidden bg-ink-2 py-[14vh] px-page">
+    <section id="contact" className="relative min-h-screen flex items-center overflow-hidden bg-cream py-[14vh] px-page">
       <div className="absolute inset-0 grid-fx opacity-60" />
-      <div className="absolute inset-0 bg-[linear-gradient(335deg,rgba(11,11,13,0.94)_0%,rgba(11,11,13,0.7)_45%,rgba(11,11,13,0.5)_100%)]" />
-      <div className="absolute -bottom-1/3 -left-1/4 w-[60vw] h-[60vw] rounded-full bg-neon/10 blur-[140px]" />
+            <div className="absolute -bottom-1/3 -left-1/4 w-[60vw] h-[60vw] rounded-full bg-accent/10 blur-[140px]" />
 
       <div className="relative z-10 w-full grid grid-cols-1 xl:grid-cols-[1.3fr_1fr] gap-16 items-end">
         <div>
-          <span className="eyebrow text-neon mb-6">Get Started</span>
+          <span className="eyebrow text-accent mb-6">Get Started</span>
           <h2 className="display text-[clamp(64px,11vw,200px)]">
             <RevealLines lines={["Let's build", "something", "that ships."]} accent={2} />
           </h2>
-          <p className="text-[#d7d7d4] leading-[1.6] text-[clamp(15px,1.3vw,19px)] max-w-[560px] mt-8">
-            Open to Generative AI engineering roles, collaborations and ambitious builds. Drop a message or reach
+          <p className="text-ink/70 leading-[1.6] text-[clamp(15px,1.3vw,19px)] max-w-[560px] mt-8">
+            Open to software engineering roles across backend, full-stack and GenAI, and to ambitious builds. Drop a message or reach
             out on GitHub or LinkedIn.
           </p>
 
           <div className="flex flex-wrap gap-x-8 gap-y-3.5 mt-8 text-sm text-muted">
-            <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-2.5 hover:text-neon transition-colors">
+            <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-2.5 hover:text-accent transition-colors">
               <Mail size={16} /> {profile.email}
             </a>
             <span className="inline-flex items-center gap-2.5">
@@ -62,7 +61,7 @@ export const Contact = ({ onResume }: { onResume: () => void }) => {
           <div className="flex flex-wrap gap-3.5 mt-8">
             <a
               href={`mailto:${profile.email}`}
-              className="inline-flex items-center gap-2.5 rounded-full bg-neon text-ink border border-neon px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:brightness-105 transition"
+              className="inline-flex items-center gap-2.5 rounded-full bg-accent text-cream border border-accent px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:brightness-105 transition"
             >
               Email me <ArrowUpRight size={16} />
             </a>
@@ -75,21 +74,21 @@ export const Contact = ({ onResume }: { onResume: () => void }) => {
                 href={href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-white/[0.08] hover:border-cream transition"
+                className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-ink/5 hover:border-ink transition"
               >
                 <Icon /> {label}
               </a>
             ))}
             <button
               onClick={onResume}
-              className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-white/[0.08] hover:border-cream transition"
+              className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-ink/5 hover:border-ink transition"
             >
               Résumé
             </button>
           </div>
         </div>
 
-        <form ref={formRef} onSubmit={handleSubmit} className="border border-line bg-ink/70 backdrop-blur-md p-6 md:p-8 space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="border border-line bg-white/60 backdrop-blur-md p-6 md:p-8 space-y-4">
           <p className="eyebrow text-muted mb-2">Send a message</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <input name="from_name" required placeholder="Name" aria-label="Name" className={field} />
@@ -99,7 +98,7 @@ export const Contact = ({ onResume }: { onResume: () => void }) => {
           <button
             type="submit"
             disabled={status === "sending"}
-            className="w-full inline-flex items-center justify-center gap-2.5 bg-cream text-ink py-3.5 text-sm font-semibold hover:bg-neon disabled:opacity-60 transition-colors"
+            className="w-full inline-flex items-center justify-center gap-2.5 bg-ink text-cream py-3.5 text-sm font-semibold hover:bg-accent disabled:opacity-60 transition-colors"
           >
             {status === "sending" && <Loader2 size={16} className="animate-spin" />}
             {{ idle: "Send message", sending: "Sending…", success: "Message sent ✓", error: "Failed, try email instead" }[status]}

@@ -43,7 +43,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
     <>
       <header
         className={`fixed top-0 inset-x-0 z-50 h-16 px-page flex items-center justify-center transition-colors duration-300 ${
-          scrolled ? "bg-ink/80 backdrop-blur-md border-b border-line" : "text-white mix-blend-difference"
+          scrolled ? "bg-cream/85 backdrop-blur-md border-b border-line" : ""
         }`}
       >
         <div className="w-full max-w-[1380px] flex items-center justify-between gap-6">
@@ -60,7 +60,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 key={id}
                 href={`#${id}`}
                 className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
-                  active === id ? "bg-cream text-ink" : "hover:bg-cream hover:text-ink"
+                  active === id ? "bg-ink text-cream" : "hover:bg-ink hover:text-cream"
                 }`}
               >
                 {label}
@@ -79,14 +79,14 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="w-9 h-9 rounded-full grid place-items-center hover:bg-cream hover:text-ink transition-colors"
+                className="w-9 h-9 rounded-full grid place-items-center hover:bg-ink hover:text-cream transition-colors"
               >
                 <Icon size={16} />
               </a>
             ))}
             <button
               onClick={onResume}
-              className={`ml-1 inline-flex items-center gap-2 rounded-full ${scrolled ? "bg-neon text-ink" : "bg-white text-black"} px-4 py-2 text-xs font-semibold uppercase tracking-[0.06em] hover:-translate-y-px hover:brightness-105 transition`}
+              className={`ml-1 inline-flex items-center gap-2 rounded-full bg-accent text-cream px-4 py-2 text-xs font-semibold uppercase tracking-[0.06em] hover:-translate-y-px hover:brightness-105 transition`}
             >
               <FileText size={14} /> Résumé
             </button>
@@ -116,7 +116,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[55] bg-ink-2 px-page pt-24 pb-10 flex flex-col justify-between"
+            className="fixed inset-0 z-[55] bg-cream px-page pt-24 pb-10 flex flex-col justify-between"
           >
             <span className="eyebrow text-muted">Menu</span>
             <nav className="flex flex-col items-center gap-2">
@@ -134,7 +134,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.05 * i }}
-                  className="display text-[clamp(64px,18vw,140px)] text-center hover:text-neon transition-colors"
+                  className="display text-[clamp(64px,18vw,140px)] text-center hover:text-accent transition-colors"
                 >
                   <span className="font-sans text-xs text-muted-2 align-top mr-2">0{i + 1}</span>
                   {label}
@@ -146,7 +146,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 href={profile.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 hover:text-neon"
+                className="inline-flex items-center gap-2 hover:text-accent"
               >
                 <GithubIcon /> GitHub
               </a>
@@ -154,7 +154,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 href={profile.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 hover:text-neon"
+                className="inline-flex items-center gap-2 hover:text-accent"
               >
                 <LinkedinIcon /> LinkedIn
               </a>
@@ -163,7 +163,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                   setOpen(false);
                   onResume();
                 }}
-                className="inline-flex items-center gap-2 hover:text-neon"
+                className="inline-flex items-center gap-2 hover:text-accent"
               >
                 <FileText size={16} /> Résumé
               </button>

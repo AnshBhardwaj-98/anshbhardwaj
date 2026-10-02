@@ -1,17 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-ink: #0e0e0e;
-  --color-ink-2: #0b0b0d;
-  --color-paper: #ececec;
-  --color-cream: #f5f4f2;
-  --color-neon: #cbf74b;
-  --color-muted: #b3b3b3;
-  --color-muted-2: #8a8a8a;
-  --color-muted-dark: #5a5a5a;
-  --color-line: #2a2a2a;
-  --color-line-light: #cfcfcf;
-  --color-hairline: #414141;
+  /* Editorial & Luxury palette, used minimally: alabaster + onyx, one terracotta accent */
+  --color-ink: #0f0f0f; /* onyx: text, borders, buttons, footer */
+  --color-cream: #faf9f6; /* alabaster: page background */
+  --color-paper: #faf9f6;
+  --color-accent: #c26d50; /* terracotta: the single accent */
+  --color-muted: #6e6a64;
+  --color-muted-2: #8a857d;
+  --color-muted-dark: #8a857d;
+  --color-line: #e4dfd6;
+  --color-hairline: #d9d3c8;
 
   --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-display: "Google Sans Flex", "Inter", "Helvetica Neue", sans-serif;
@@ -21,16 +20,16 @@
 
 @layer base {
   body {
-    background-color: var(--color-ink);
-    color: var(--color-cream);
+    background-color: var(--color-cream);
+    color: var(--color-ink);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: clip;
   }
   ::selection {
-    background-color: var(--color-neon);
-    color: var(--color-ink);
+    background-color: var(--color-ink);
+    color: var(--color-cream);
   }
   section[id] {
     scroll-margin-top: 64px;
@@ -76,11 +75,17 @@
   -webkit-text-stroke: 1px var(--color-hairline);
 }
 
+/* Film grain (static SVG noise) */
+@utility grain {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 /* Faint grid behind dark sections */
 @utility grid-fx {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(15, 15, 15, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 15, 15, 0.04) 1px, transparent 1px);
   background-size: 64px 64px;
 }
 
@@ -103,11 +108,11 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-ink);
+  background: var(--color-cream);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-hairline);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-neon);
+  background: var(--color-accent);
 }

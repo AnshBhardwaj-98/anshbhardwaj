@@ -6,7 +6,7 @@ export const Capabilities = () => {
   const [active, setActive] = useState(0);
 
   return (
-    <section id="capabilities" className="relative py-[12vh] px-page bg-ink-2 overflow-x-clip">
+    <section id="capabilities" className="relative py-[12vh] px-page bg-cream overflow-x-clip">
       <span className="eyebrow text-muted mb-5">Capabilities</span>
       <h2 className="font-display font-semibold tracking-[-0.02em] text-[clamp(30px,4vw,60px)] mb-12">
         <RevealLines lines={["What I build."]} />
@@ -23,12 +23,12 @@ export const Capabilities = () => {
               style={{ "--hue": c.hue } as React.CSSProperties}
               className={`relative overflow-hidden border cursor-pointer backdrop-blur-md transition-[flex-grow,border-color,background-color] duration-700 ease-out-expo lg:basis-0 min-w-0 ${
                 on
-                  ? "lg:grow-[6] border-(--hue) bg-[rgba(22,22,24,0.55)]"
-                  : "lg:grow border-(--hue) lg:border-line bg-[rgba(19,19,21,0.35)]"
+                  ? "lg:grow-[6] border-(--hue) bg-white/80"
+                  : "lg:grow border-(--hue) lg:border-line bg-white/40"
               }`}
             >
               <span
-                className="absolute top-[18px] left-[18px] z-10 text-[11px] font-bold text-ink px-[7px] py-[3px]"
+                className="absolute top-[18px] left-[18px] z-10 text-[11px] font-bold text-cream px-[7px] py-[3px]"
                 style={{ background: c.hue }}
               >
                 {String(i + 1).padStart(2, "0")}
@@ -75,7 +75,7 @@ export const Capabilities = () => {
                     {c.stack.map((s) => (
                       <span
                         key={s}
-                        className="inline-flex items-center gap-2 border border-line bg-white/[0.03] px-3 py-1.5 text-[12.5px] text-[#d6d4cf] hover:-translate-y-0.5 hover:border-(--hue) transition"
+                        className="inline-flex items-center gap-2 border border-line bg-cream px-3 py-1.5 text-[12.5px] text-ink/80 hover:-translate-y-0.5 hover:border-(--hue) transition"
                       >
                         <span className="text-[9px] font-bold" style={{ color: c.hue }}>
                           {s.slice(0, 2).toUpperCase()}

@@ -28,7 +28,7 @@ export const Preloader = ({ onDone }: { onDone: () => void }) => {
     <motion.div
       exit={{ y: "-100%" }}
       transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-      className="fixed inset-0 z-[200] bg-ink-2 text-cream flex flex-col justify-between px-page py-8"
+      className="fixed inset-0 z-[200] bg-cream text-ink flex flex-col justify-between px-page py-8"
       aria-hidden
     >
       <div className="flex justify-between text-xs uppercase tracking-[0.12em] text-muted">
@@ -38,7 +38,7 @@ export const Preloader = ({ onDone }: { onDone: () => void }) => {
       <div className="flex items-end justify-between gap-6">
         <span className="display text-[clamp(120px,26vw,420px)] tabular-nums">{pct}%</span>
         <span className="hidden sm:block w-[30vw] h-px bg-hairline mb-[4vw] relative overflow-hidden">
-          <span className="absolute inset-y-0 left-0 bg-neon" style={{ width: `${pct}%` }} />
+          <span className="absolute inset-y-0 left-0 bg-accent" style={{ width: `${pct}%` }} />
         </span>
       </div>
     </motion.div>

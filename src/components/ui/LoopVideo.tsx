@@ -1,19 +1,30 @@
 import { useEffect, useRef } from "react";
 
-// Muted background loop that only plays while on screen; reduced-motion users get the poster frame.
-export const LoopVideo = ({ src, className = "" }: { src: string; className?: string }) => {
+// Muted background loop. By default it plays only while on screen; pass `playing` to control it
+// directly (e.g. a sticky footer that is technically always "on screen" but hidden behind the page).
+// Reduced-motion users get the poster frame.
+export const LoopVideo = ({ src, className = "", playing }: { src: string; className?: string; playing?: boolean }) => {
   const ref = useRef<HTMLVideoElement>(null);
+  const controlled = playing !== undefined;
 
   useEffect(() => {
     const video = ref.current;
-    if (!video || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!video || controlled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) video.play().catch(() => {}); // autoplay can be refused; poster stays
+      if (entry.isIntersecting)
+        video.play().catch(() => {}); // autoplay can be refused; poster stays
       else video.pause();
     });
     observer.observe(video);
     return () => observer.disconnect();
-  }, []);
+  }, [controlled]);
+
+  useEffect(() => {
+    const video = ref.current;
+    if (!video || !controlled || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (playing) video.play().catch(() => {});
+    else video.pause();
+  }, [controlled, playing]);
 
   return (
     <video

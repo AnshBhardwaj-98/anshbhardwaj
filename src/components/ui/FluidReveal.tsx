@@ -3,8 +3,8 @@ import * as THREE from "three";
 import { Canvas, useFrame, useThree, type RootState } from "@react-three/fiber";
 import { useFluid } from "@funtech-inc/use-shader-fx";
 
-const BASE = "#f5f4f2"; // cream panel
-const INK = "#0e0e0e"; // wordmark on the panel
+const BASE = "#faf9f6"; // cream panel
+const INK_COLOR = "#0f0f0f"; // wordmark on the panel
 const WHITE = "#ffffff"; // wordmark revealed on top of the video
 const FONT = '"Google Sans Flex", "Inter", sans-serif';
 
@@ -90,7 +90,7 @@ function createWordmark(word: string) {
       }
       if (settled) return; // nothing changes once the intro is over
 
-      settled = paint(base.ctx, BASE, INK, now, width, height);
+      settled = paint(base.ctx, BASE, INK_COLOR, now, width, height);
       paint(reveal.ctx, null, WHITE, now, width, height);
       base.texture.needsUpdate = true;
       reveal.texture.needsUpdate = true;
@@ -103,78 +103,194 @@ const vertexShader = /* glsl */ `
   void main() { vUv = uv; gl_Position = vec4(position.xy * 2.0, 0.0, 1.0); }
 `;
 
-// Where the fluid is moving faster than uThreshold the panel opens: the base layer is swapped for
-// the reveal layer (white wordmark on transparent), so the video shows through with the name on it.
-// The cut is a hard threshold, anti-aliased over ~1px with fwidth, so the edge is sharp but not jagged.
-const fragmentShader = /* glsl */ `
+// --- Ink (dye) layer, as on noth.in -------------------------------------------------------------
+// The cursor paints ink; the fluid's velocity carries it; it fades slowly. The reveal is cut on the ink,
+// so the shape behaves like a substance: it holds together, lingers after you stop, keeps crisp detail.
+
+const INK = {
+  scale: 0.5, // ink buffer resolution relative to the canvas (noth.in uses ~512px)
+  dissipation: 0.988, // noth.in's dyeDissipation, per 60fps frame: how slowly the ink fades
+  amount: 0.5, // ink painted per frame while the cursor moves
+  radius: 0.0016, // brush size (uv^2, aspect-corrected)
+  threshold: 0.128, // noth.in: smoothstep(0.5, 0.51, dye * 3.9) -> cut at ~0.128
+};
+
+const inkShader = /* glsl */ `
+  uniform sampler2D uInk;
+  uniform sampler2D uVelocity;
+  uniform vec2 uMaxAspect;
+  uniform vec2 uPoint;
+  uniform vec2 uPrev;
+  uniform float uAspect;
+  uniform float uAmount;
+  uniform float uRadius;
+  uniform float uDissipation;
+  varying vec2 vUv;
+  void main() {
+    // Advect exactly like use-shader-fx moves its own velocity (deltaTime 0.008)
+    vec2 vel = texture2D(uVelocity, vUv).xy;
+    float ink = texture2D(uInk, vUv - vel * 0.008 * uMaxAspect).r * uDissipation;
+    // Paint along the segment prev -> current (a capsule, not a dot) so fast swings stay one stroke
+    vec2 p = vUv - uPrev, ab = uPoint - uPrev;
+    p.x *= uAspect; ab.x *= uAspect;
+    float h = clamp(dot(p, ab) / max(dot(ab, ab), 1e-8), 0.0, 1.0);
+    vec2 d = p - ab * h;
+    // max, not +: repeated passes over the same spot top the ink up instead of piling it on,
+    // so the stroke keeps a constant width however fast or often you swing through it
+    ink = max(ink, uAmount * exp(-dot(d, d) / uRadius));
+    gl_FragColor = vec4(clamp(ink, 0.0, 2.0), 0.0, 0.0, 1.0);
+  }
+`;
+
+// Cut the panel open where there's ink: base layer (cream + ink wordmark) is swapped for the reveal layer
+// (white wordmark on transparent), so the video shows through with the name on it.
+// Hard threshold, anti-aliased over ~1px with fwidth: sharp but not jagged.
+const maskShader = /* glsl */ `
   uniform sampler2D uBase;
   uniform sampler2D uReveal;
-  uniform sampler2D uFluid;
+  uniform sampler2D uInk;
   uniform float uThreshold;
-  uniform float uGoo;
   varying vec2 vUv;
   void main() {
     vec4 base = texture2D(uBase, vUv);
     vec4 rev = texture2D(uReveal, vUv);
-    // "Gooey" blur of the speed field before the hard cut (blur + threshold = metaballs):
-    // pieces that get close merge into one body instead of tearing into separate islands.
-    // Two rings of 8 taps around the centre, ~uGoo sim texels wide.
-    vec2 px = uGoo / vec2(textureSize(uFluid, 0));
-    float speed = texture2D(uFluid, vUv).r * 0.2;
-    for (int i = 0; i < 8; i++) {
-      float a = float(i) * 0.785398; // 45deg steps
-      vec2 dir = vec2(cos(a), sin(a));
-      speed += texture2D(uFluid, vUv + dir * px * 0.5).r * 0.06;
-      speed += texture2D(uFluid, vUv + dir * px).r * 0.04;
-    }
-    float aa = fwidth(speed);
-    float open = smoothstep(uThreshold - aa, uThreshold + aa, speed);
+    float ink = texture2D(uInk, vUv).r;
+    float aa = fwidth(ink);
+    float open = smoothstep(uThreshold - aa, uThreshold + aa, ink);
     // premultiplied output: opaque cream panel -> white text over transparent
     gl_FragColor = mix(vec4(base.rgb, 1.0), vec4(rev.rgb * rev.a, rev.a), open);
     #include <colorspace_fragment>
   }
 `;
 
+// Ping-pong ink buffers + the final mask material, kept outside React (plain mutable GPU state).
+function createInk(base: THREE.Texture, reveal: THREE.Texture) {
+  const rtOpts = {
+    type: THREE.HalfFloatType,
+    minFilter: THREE.LinearFilter,
+    magFilter: THREE.LinearFilter,
+    depthBuffer: false,
+  };
+  let read = new THREE.WebGLRenderTarget(1, 1, rtOpts);
+  let write = new THREE.WebGLRenderTarget(1, 1, rtOpts);
+  let needsClear = true;
+
+  const inkMaterial = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader: inkShader,
+    uniforms: {
+      uInk: { value: read.texture },
+      uVelocity: { value: null },
+      uMaxAspect: { value: new THREE.Vector2(1, 1) },
+      uPoint: { value: new THREE.Vector2(0.5, 0.5) },
+      uPrev: { value: new THREE.Vector2(0.5, 0.5) },
+      uAspect: { value: 1 },
+      uAmount: { value: 0 },
+      uRadius: { value: INK.radius },
+      uDissipation: { value: INK.dissipation },
+    },
+    depthTest: false,
+    depthWrite: false,
+  });
+  const scene = new THREE.Scene();
+  const quad = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), inkMaterial);
+  quad.frustumCulled = false;
+  scene.add(quad);
+  const camera = new THREE.Camera();
+
+  const maskMaterial = new THREE.ShaderMaterial({
+    vertexShader,
+    fragmentShader: maskShader,
+    uniforms: {
+      uBase: { value: base },
+      uReveal: { value: reveal },
+      uInk: { value: read.texture },
+      uThreshold: { value: INK.threshold },
+    },
+    transparent: true,
+    blending: THREE.NoBlending,
+    depthTest: false,
+    depthWrite: false,
+  });
+
+  let hasPrev = false;
+  const u = inkMaterial.uniforms;
+
+  return {
+    maskMaterial,
+    step(
+      gl: THREE.WebGLRenderer,
+      velocity: THREE.Texture,
+      pointerNdc: THREE.Vector2,
+      width: number,
+      height: number,
+      dt: number,
+    ) {
+      const w = Math.max(1, Math.round(width * INK.scale));
+      const h = Math.max(1, Math.round(height * INK.scale));
+      if (read.width !== w || read.height !== h) {
+        read.setSize(w, h);
+        write.setSize(w, h);
+        needsClear = true;
+      }
+      if (needsClear) {
+        // Fresh GPU buffers can hold garbage (even NaN) on some drivers; start from no ink
+        for (const rt of [read, write]) {
+          gl.setRenderTarget(rt);
+          gl.clear();
+        }
+        needsClear = false;
+      }
+
+      const x = (pointerNdc.x + 1) / 2;
+      const y = (pointerNdc.y + 1) / 2;
+      if (!hasPrev) u.uPrev.value.set(x, y);
+      hasPrev = true;
+      const moved = Math.hypot(x - u.uPrev.value.x, y - u.uPrev.value.y);
+      u.uPoint.value.set(x, y);
+      // Only paint while moving; ramp in over a tiny distance so a twitch doesn't punch a full hole
+      u.uAmount.value = INK.amount * Math.min(1, moved / 0.0008);
+      // Fade per unit of time, not per frame, so ink lasts the same on 60Hz and 144Hz screens
+      u.uDissipation.value = Math.pow(INK.dissipation, dt / 16.67);
+      const m = Math.max(width, height);
+      u.uMaxAspect.value.set(m / width, m / height);
+      u.uAspect.value = width / height;
+      u.uVelocity.value = velocity;
+      u.uInk.value = read.texture;
+
+      gl.setRenderTarget(write);
+      gl.render(scene, camera);
+      gl.setRenderTarget(null);
+      [read, write] = [write, read];
+      u.uPrev.value.set(x, y);
+      maskMaterial.uniforms.uInk.value = read.texture;
+    },
+  };
+}
+
 const Scene = ({ word, getPointer }: { word: string; getPointer: (now: number) => THREE.Vector2 }) => {
   const { size } = useThree();
   const [wordmark] = useState(() => createWordmark(word));
+  const [ink] = useState(() => createInk(wordmark.base, wordmark.reveal));
   const fluid = useFluid({
     size,
-    // Half-res sim: enough detail that the hard-edged contour stays smooth and liquid
     dpr: 0.5,
-    dissipation: 0.994, // closer to 1 = the swirl lingers longer
-    forceBias: 22, // enough stir for swirly, stretched openings without turning chaotic
+    // noth.in lets the motion die quickly (0.962) while the ink lingers; the swirl only shapes the ink
+    dissipation: 0.962,
+    forceBias: 18,
   });
 
-  const material = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        vertexShader,
-        fragmentShader,
-        uniforms: {
-          uBase: { value: wordmark.base },
-          uReveal: { value: wordmark.reveal },
-          uFluid: { value: fluid.texture },
-          uThreshold: { value: 0.24 },
-          uGoo: { value: 8.0 }, // merge radius in sim texels; higher = blob sticks together more
-        },
-        transparent: true,
-        blending: THREE.NoBlending,
-        depthTest: false,
-        depthWrite: false,
-      }),
-    [wordmark.base, wordmark.reveal, fluid.texture],
-  );
-
-  useFrame((state: RootState) => {
+  useFrame((state: RootState, delta: number) => {
     const now = performance.now();
     wordmark.draw(now, state.size.width, state.size.height);
     // Feed the sim our own pointer (real cursor, or a slow wander when idle / on touch)
-    fluid.render({ ...state, pointer: getPointer(now) });
+    const pointer = getPointer(now);
+    fluid.render({ ...state, pointer });
+    ink.step(state.gl, fluid.velocity, pointer, state.size.width, state.size.height, Math.min(delta * 1000, 50));
   });
 
   return (
-    <mesh frustumCulled={false} material={material}>
+    <mesh frustumCulled={false} material={ink.maskMaterial}>
       <planeGeometry args={[1, 1]} />
     </mesh>
   );
@@ -207,8 +323,7 @@ export default function FluidReveal({
 
   const wander = useMemo(() => new THREE.Vector2(), []);
   const reduce = useMemo(() => window.matchMedia("(prefers-reduced-motion: reduce)").matches, []);
-  // The sim reacts to pointer velocity, so raw (bursty) mouse events make it jerky.
-  // Ease a follower toward the target instead (frame-rate independent).
+  // Light easing so bursty mouse events don't give the sim jerky pushes (frame-rate independent)
   const smooth = useRef(new THREE.Vector2(0, 0));
   const lastFrame = useRef(0);
   const getPointer = (now: number) => {
@@ -217,14 +332,7 @@ export default function FluidReveal({
     const target = idle ? wander.set(0.6 * Math.sin(s * 0.5), 0.4 * Math.sin(s * 0.8)) : pointer.current;
     const dt = lastFrame.current ? Math.min(now - lastFrame.current, 50) : 16;
     lastFrame.current = now;
-    // Cap the follower's speed: a fast swing gives a strong but bounded push instead of a spike
-    // that tears the fluid apart (units: normalized screen per ms).
-    const MAX_STEP = 0.003 * dt;
-    const before = smooth.current.clone();
-    smooth.current.lerp(target, 1 - Math.pow(1 - 0.2, dt / 16.67));
-    const step = smooth.current.clone().sub(before);
-    if (step.length() > MAX_STEP) smooth.current.copy(before.add(step.setLength(MAX_STEP)));
-    return smooth.current;
+    return smooth.current.lerp(target, 1 - Math.pow(1 - 0.35, dt / 16.67));
   };
 
   return (

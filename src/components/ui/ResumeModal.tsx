@@ -53,7 +53,7 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-black/70 backdrop-blur-md"
+            className="absolute inset-0 bg-ink/40 backdrop-blur-md"
           />
           <motion.div
             role="dialog"
@@ -63,18 +63,18 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="relative w-full max-w-lg bg-ink border border-line p-8 md:p-10"
+            className="relative w-full max-w-lg bg-cream border border-line p-8 md:p-10"
           >
             <button
               onClick={onClose}
               disabled={status === "sending"}
               aria-label="Close"
-              className="absolute top-5 right-5 text-muted hover:text-neon transition-colors"
+              className="absolute top-5 right-5 text-muted hover:text-accent transition-colors"
             >
               <X size={22} />
             </button>
 
-            <span className="eyebrow text-neon mb-4">Résumé</span>
+            <span className="eyebrow text-accent mb-4">Résumé</span>
             <h3 id="resume-title" className="font-display text-3xl font-semibold tracking-tight mb-3">
               {status === "success" ? "On its way." : "Get my résumé"}
             </h3>
@@ -85,7 +85,7 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
             </p>
 
             {status === "success" ? (
-              <CheckCircle className="text-neon" size={40} />
+              <CheckCircle className="text-accent" size={40} />
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <input
@@ -95,18 +95,18 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@company.com"
                   aria-label="Email address"
-                  className="w-full bg-white/[0.03] border border-line px-4 py-3.5 text-cream placeholder:text-muted-dark focus:outline-none focus:border-neon transition-colors"
+                  className="w-full bg-white border border-line px-4 py-3.5 text-ink placeholder:text-muted-2 focus:outline-none focus:border-ink transition-colors"
                 />
                 <button
                   type="submit"
                   disabled={status === "sending"}
-                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-neon text-ink py-3.5 text-sm font-semibold hover:brightness-105 disabled:opacity-60 transition"
+                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-ink text-cream py-3.5 text-sm font-semibold hover:bg-accent disabled:opacity-60 transition"
                 >
                   {status === "sending" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                   {status === "sending" ? "Sending…" : "Send résumé"}
                 </button>
                 {status === "error" && (
-                  <p className="text-sm text-red-400">Couldn't send right now. Please try again or email me directly.</p>
+                  <p className="text-sm text-accent">Couldn't send right now. Please try again or email me directly.</p>
                 )}
               </form>
             )}

@@ -1,10 +1,13 @@
 import { BrainCircuit, Server, Layout, Database, type LucideIcon } from "lucide-react";
 
+// Content source: divyansh_bhardwaj.pdf (latest resume)
+
 export const profile = {
   name: "Divyansh Bhardwaj",
-  role: "Generative AI Engineer",
+  role: "Software Engineer",
+  focus: "Backend · Full-Stack · AI/GenAI",
   email: "contact@anshbhardwaj.com",
-  location: "NCR, India",
+  location: "New Delhi, India",
   github: "https://github.com/AnshBhardwaj-98",
   linkedin: "https://linkedin.com/in/divyanshbhardwaj001",
   leetcode: "https://leetcode.com/u/itsanshbhardwaj/",
@@ -27,103 +30,191 @@ export type Capability = {
 
 export const capabilities: Capability[] = [
   {
-    title: "Generative AI & LLMs",
-    desc: "Building internal tools that use LLMs to automate complex business workflows, from fine-tuning pipelines to production inference.",
+    title: "AI & LLM Pipelines",
+    desc: "Multi-stage LLM pipelines with structured outputs, speech-to-text, and permission-aware RAG over vector search and knowledge graphs.",
     Icon: BrainCircuit,
-    hue: "#cbf74b",
-    stack: ["PyTorch", "TensorFlow", "Hugging Face", "Scikit-learn", "NumPy", "Pandas", "Google Gemini"],
+    hue: "#c26d50",
+    stack: ["OpenAI API", "Gemini", "RAG", "Knowledge Graphs", "Speech-to-Text", "pgvector", "PyTorch", "Hugging Face", "Langfuse"],
   },
   {
-    title: "Scalable Backends",
-    desc: "Designing robust FastAPI and Node.js backends that handle real-time data streaming and high-concurrency workloads.",
+    title: "Backend & APIs",
+    desc: "Multi-tenant FastAPI and Node.js backends with RBAC, background jobs, and real-time streaming over WebSockets and SSE.",
     Icon: Server,
-    hue: "#7dd3fc",
-    stack: ["FastAPI", "Node.js", "Express.js", "REST APIs", "SSE", "WebSockets", "Socket.IO"],
+    hue: "#c26d50",
+    stack: ["FastAPI", "Node.js", "Express.js", "Flask", "SQLAlchemy", "Celery", "Redis", "WebSockets", "SSE", "REST APIs"],
   },
   {
     title: "Full-Stack Product",
-    desc: "Creating seamless user experiences with React and modern frontend architectures, shipped end to end.",
+    desc: "React and Next.js products shipped end to end, from bulk-edit grids over whole store catalogs to live collaborative editors.",
     Icon: Layout,
-    hue: "#f9a8d4",
-    stack: ["React.js", "Next.js", "React Native", "JavaScript", "TypeScript"],
+    hue: "#c26d50",
+    stack: ["React.js", "Next.js", "TypeScript", "Vite", "Tailwind CSS", "React Native", "IndexedDB"],
   },
   {
-    title: "Data & Tooling",
-    desc: "Modelling data across relational and document stores, and shipping it with containerised, version-controlled workflows.",
+    title: "Data & DevOps",
+    desc: "PostgreSQL schemas and migrations, Dockerised deploys, and CI pipelines running hundreds of automated tests.",
     Icon: Database,
-    hue: "#fcd34d",
-    stack: ["PostgreSQL", "MySQL", "MongoDB", "Docker", "Git", "Python", "C++", "Java"],
+    hue: "#c26d50",
+    stack: ["PostgreSQL", "MySQL", "MongoDB", "Supabase", "AWS S3", "Docker", "GitHub Actions", "Railway", "Vercel", "Alembic", "pytest"],
   },
 ];
 
-export const projects = [
+export type Project = {
+  title: string;
+  year: string;
+  category: string;
+  tech: string[];
+  description: string;
+  link?: string; // client work has no public link
+};
+
+export const projects: Project[] = [
+  {
+    title: "Triburg QA",
+    year: "2026",
+    category: "AI · Client work",
+    tech: ["Python", "FastAPI", "React", "PostgreSQL", "OpenAI", "AWS S3"],
+    description:
+      "Speech-to-report garment inspection: a 5-stage LLM pipeline turns recorded Hindi/English inspections into the client's filled reports, cutting time per size set by 50%.",
+  },
+  {
+    title: "OrgOS",
+    year: "2026",
+    category: "AI · Client work",
+    tech: ["FastAPI", "pgvector", "Celery", "Redis", "React", "TypeScript"],
+    description:
+      "Multi-tenant AI meeting assistant that joins Meet, Zoom and Teams calls, streams live transcripts and answers questions through permission-aware RAG.",
+  },
+  {
+    title: "ShopManager",
+    year: "2026",
+    category: "Full-stack · Client work",
+    tech: ["React", "FastAPI", "Supabase", "Shopify GraphQL", "WebSockets"],
+    description:
+      "Multi-store Shopify admin with a bulk-edit grid over entire catalogs that syncs only changed fields and streams progress live.",
+  },
+  {
+    title: "Meridian",
+    year: "2025",
+    category: "Realtime",
+    tech: ["React", "Node.js", "Socket.IO", "Monaco"],
+    description: "Real-time collaborative code editor with multi-user sync for 10+ concurrent users and live notifications.",
+    link: "https://meridian.anshbhardwaj.com/",
+  },
   {
     title: "Aclique CLI",
     year: "2025",
     category: "AI Tooling",
-    tech: ["Node.js", "PostgreSQL", "Google Gemini"],
-    description:
-      "A high-performance AI orchestrator designed for terminal-based automation and mission-critical developer workflows.",
+    tech: ["Node.js", "Next.js", "PostgreSQL", "Prisma", "Gemini"],
+    description: "AI-powered CLI on Google Gemini with GitHub OAuth device authorization and a Prisma/PostgreSQL auth backend.",
     link: "https://github.com/AnshBhardwaj-98/aclique-cli",
   },
   {
     title: "YouTube Sentiment",
     year: "2025",
     category: "NLP",
-    tech: ["Python", "Flask", "NLP"],
-    description:
-      "A browser extension that analyses large volumes of YouTube comments at scale for audience-sentiment insights.",
+    tech: ["Python", "Flask", "YouTube Data API"],
+    description: "Browser extension with Flask REST APIs for real-time sentiment analysis of YouTube comments across 100+ videos.",
     link: "https://github.com/AnshBhardwaj-98/Youtube_Sentiment_Analysis_Extension",
-  },
-  {
-    title: "Meridian Live",
-    year: "2025",
-    category: "Realtime",
-    tech: ["React", "WebSockets", "Socket.IO"],
-    description:
-      "Low-latency collaborative environment with real-time state synchronisation for high-throughput teams.",
-    link: "https://meridian-live.vercel.app/",
-  },
-  {
-    title: "SkittyChat",
-    year: "2024",
-    category: "Realtime",
-    tech: ["Node.js", "JWT", "Realtime"],
-    description:
-      "Secure chat infrastructure with modular authentication and real-time message streaming.",
-    link: "https://skitty-frontend.onrender.com",
   },
 ];
 
 export const experiences = [
   {
-    role: "Generative AI Engineer",
+    role: "SDE Intern",
     company: "Synergy Labs",
-    period: "Present",
+    period: "Apr 2026 – Sep 2026",
     location: "Gurugram, India",
     points: [
-      { t: "LLM automation", d: "Architecting LLM-driven internal automation systems." },
-      { t: "Fine-tuning", d: "Optimising fine-tuning pipelines for proprietary models." },
-      { t: "Inference APIs", d: "Developing high-throughput API layers for real-time inference." },
+      {
+        t: "Triburg QA",
+        d: "Built a speech-to-report inspection platform; its 5-stage LLM pipeline cut time per size set by 50%.",
+      },
+      {
+        t: "OrgOS",
+        d: "Engineered a multi-tenant AI meeting assistant: live transcripts, permission-aware RAG, 224 endpoints across 61 tables.",
+      },
+      { t: "Performance", d: "Cut board load time from 7.1s to 0.12s with eager loading and indexed permission checks." },
+      { t: "Shipping", d: "Docker and AWS S3 deploys, Alembic migrations, and GitHub Actions CI with 600+ automated tests." },
     ],
   },
   {
     role: "Software Engineering Intern",
     company: "Uplyift",
-    period: "2026",
-    location: "Delhi, India",
+    period: "Jan 2026 – Mar 2026",
+    location: "New Delhi, India",
     points: [
-      { t: "Shopify at scale", d: "Engineered Shopify admin scale systems with SSE streaming." },
-      { t: "FastAPI backends", d: "Built FastAPI backends for high-concurrency management." },
+      { t: "ShopManager", d: "Built a multi-tenant dashboard managing products, inventory and collections across Shopify stores." },
+      { t: "Bulk editing", d: "GraphQL Bulk Operations grid that pushes only modified fields and streams progress over WebSockets." },
+      { t: "Resilience", d: "Supabase JWT auth, auto-refreshing Shopify tokens, and an API client with backoff on 429/5xx errors." },
+    ],
+  },
+  {
+    role: "Intern, Machine Learning & Deep Learning",
+    company: "Edunet Foundation",
+    period: "Jan 2025 – Feb 2025",
+    location: "Remote",
+    points: [
+      { t: "Stable Diffusion XL", d: "Fine-tuned SDXL in PyTorch for domain-specific image generation, improving quality by about 30% (FID)." },
     ],
   },
 ];
 
-// jjettas "Signature Moments": title + stat line. Swap in real metrics as you have them.
-export const moments = [
-  { title: "Generative AI Engineer", stat: "Synergy Labs · LLM Automation · Present", tag: "Career", video: "/moments/1.mp4" },
-  { title: "10k+ Syncs", stat: "Production automation · Real-time pipelines", tag: "Impact", video: "/moments/2.mp4" },
-  { title: "Aclique CLI", stat: "Node.js · PostgreSQL · Gemini · 2025", tag: "Featured build", video: "/moments/3.mp4" },
-  { title: "SSE at Shopify Scale", stat: "Uplyift · FastAPI · High concurrency", tag: "Internship", video: "/moments/4.mp4" },
-  { title: "B.Tech AI & ML", stat: "Sharda University · Class of 2026", tag: "Education", video: "/moments/5.mp4" },
+export const education = {
+  degree: "B.Tech in Computer Science (AI & ML)",
+  school: "Sharda University",
+  place: "Greater Noida, India",
+  period: "2022 – 2026",
+  cgpa: "7.98 / 10",
+};
+
+// "Signature Moments": a headline number, what it measures, and a small bar chart of the numbers behind it
+export type MomentBar = { label: string; value: number; display: string };
+export const moments: { title: string; stat: string; tag: string; bars: MomentBar[] }[] = [
+  {
+    title: "50% faster",
+    stat: "Triburg QA · inspection report time per size set",
+    tag: "Synergy Labs",
+    bars: [
+      { label: "Before", value: 70, display: "60–80 min" },
+      { label: "After", value: 35, display: "30–40 min" },
+    ],
+  },
+  {
+    title: "7.1s → 0.12s",
+    stat: "OrgOS · board load time, eager loading + indexed permissions",
+    tag: "Performance",
+    bars: [
+      { label: "Before", value: 7.1, display: "7.1s" },
+      { label: "After", value: 0.12, display: "0.12s" },
+    ],
+  },
+  {
+    title: "Top 983",
+    stat: "Amazon ML Challenge 2025 · top 1192 in 2024",
+    tag: "Competition",
+    bars: [
+      { label: "Participants", value: 83000, display: "83,000+" },
+      { label: "Rank", value: 983, display: "#983" },
+    ],
+  },
+  {
+    title: "224 endpoints",
+    stat: "OrgOS · RBAC across organisations and teams",
+    tag: "Scale",
+    bars: [
+      { label: "API endpoints", value: 224, display: "224" },
+      { label: "Database tables", value: 61, display: "61" },
+    ],
+  },
+  {
+    title: "355+ solved",
+    stat: "LeetCode · problems by difficulty",
+    tag: "DSA",
+    bars: [
+      { label: "Easy", value: 139, display: "139" },
+      { label: "Medium", value: 187, display: "187" },
+      { label: "Hard", value: 29, display: "29" },
+    ],
+  },
 ];

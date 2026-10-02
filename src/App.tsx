@@ -27,12 +27,13 @@ export default function App() {
     <ReactLenis root options={{ lerp: 0.1, anchors: true }}>
       <div className="relative w-full">
         <AnimatePresence>{!loaded && <Preloader onDone={onLoaded} />}</AnimatePresence>
-        <motion.div className="fixed top-0 inset-x-0 h-0.5 bg-neon origin-left z-[60]" style={{ scaleX }} />
+        <motion.div className="fixed top-0 inset-x-0 h-0.5 bg-accent origin-left z-[60]" style={{ scaleX }} />
         {loaded && (
           <>
             <Navbar onResume={openResume} />
 
-            <main>
+            {/* z-10: the page sits above the sticky footer, which is revealed as main scrolls away */}
+            <main className="relative z-10">
               <Hero />
               <Capabilities />
               <Projects />

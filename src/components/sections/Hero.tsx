@@ -72,9 +72,9 @@ export const Hero = () => {
       <div className="absolute inset-0 z-10 flex flex-col justify-end px-page pt-20 pb-4 text-white mix-blend-difference pointer-events-none">
         <motion.div {...fade(1.2)} className="mb-[clamp(24px,6vh,64px)]">
           <p className="font-display text-[clamp(20px,1.6vw,26px)] leading-none tracking-tight">
-            Not just models, systems.
+            Backends, products & LLM pipelines.
             <br />
-            Generative AI, engineered to ship.
+            Engineered to ship.
           </p>
           <a
             href="#contact"

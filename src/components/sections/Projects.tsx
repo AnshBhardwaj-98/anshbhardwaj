@@ -17,7 +17,7 @@ export const Projects = () => {
         <div className="flex w-max animate-marquee font-display font-medium tracking-[-0.02em] whitespace-nowrap text-[clamp(46px,8vw,130px)] text-ink/15">
           {Array.from({ length: 8 }, (_, i) => (
             <span key={i} className="px-[0.3em]">
-              Featured Work <span className="text-neon [-webkit-text-stroke:1px_#0e0e0e]">/</span>
+              Featured Work <span className="text-accent">/</span>
             </span>
           ))}
         </div>
@@ -33,9 +33,9 @@ export const Projects = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-[60px] items-start">
           {/* Sticky preview panel */}
-          <div className="hidden lg:block sticky top-[calc(64px+6vh)] h-[72vh] border border-ink/10 bg-[#0b0b0b] text-cream overflow-hidden">
+          <div className="hidden lg:block sticky top-[calc(64px+6vh)] h-[72vh] border border-ink/10 bg-ink text-cream overflow-hidden">
             <div className="absolute inset-0 grid-fx" />
-            <div className="absolute -bottom-1/3 -right-1/4 w-[70%] h-[70%] rounded-full bg-neon/15 blur-[100px]" />
+            <div className="absolute -bottom-1/3 -right-1/4 w-[70%] h-[70%] rounded-full bg-accent/20 blur-[100px]" />
             <AnimatePresence mode="wait">
               <motion.div
                 key={active}
@@ -45,20 +45,20 @@ export const Projects = () => {
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                 className="relative h-full flex flex-col justify-between p-10"
               >
-                <div className="flex justify-between text-xs uppercase tracking-[0.08em] text-muted">
-                  <span className="text-neon">{current.category}</span>
+                <div className="flex justify-between text-xs uppercase tracking-[0.08em] text-cream/60">
+                  <span className="text-accent">{current.category}</span>
                   <span>
                     {pad(active + 1)} / {pad(projects.length)}
                   </span>
                 </div>
                 <div>
-                  <p className="font-display font-bold leading-none text-[clamp(120px,14vw,240px)] text-neon/90">
+                  <p className="font-display font-bold leading-none text-[clamp(120px,14vw,240px)] text-accent">
                     {pad(active + 1)}
                   </p>
                   <p className="font-display text-4xl font-semibold tracking-tight mt-4">{current.title}</p>
                   <div className="flex flex-wrap gap-2 mt-6">
                     {current.tech.map((t) => (
-                      <span key={t} className="text-[11px] border border-line px-2.5 py-1 text-[#d0d0d0]">
+                      <span key={t} className="text-[11px] border border-white/15 px-2.5 py-1 text-[#d0d0d0]">
                         {t}
                       </span>
                     ))}
@@ -94,15 +94,24 @@ export const Projects = () => {
                     </span>
                   ))}
                 </div>
-                <a
-                  href={p.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 w-fit rounded-full bg-ink text-cream px-5 py-3 text-sm font-semibold hover:bg-neon hover:text-ink transition-colors"
-                >
-                  View Project
-                  <ArrowUpRight size={16} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-                </a>
+                {p.link ? (
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group inline-flex items-center gap-3 w-fit rounded-full bg-ink text-cream px-5 py-3 text-sm font-semibold hover:bg-accent hover:text-cream transition-colors"
+                  >
+                    View Project
+                    <ArrowUpRight
+                      size={16}
+                      className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                    />
+                  </a>
+                ) : (
+                  <span className="text-xs uppercase tracking-[0.08em] text-muted">
+                    Client work · source confidential
+                  </span>
+                )}
               </motion.article>
             ))}
           </div>
