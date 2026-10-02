@@ -39,12 +39,29 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
     else lenis?.start();
   }, [open, lenis]);
 
+  // While the bar is transparent over the hero, it blends with `difference` (like the hero copy), so its text
+  // flips light wherever the fluid mask reveals the dark video. A fixed header is its own stacking context,
+  // so the blend has to sit on the header itself; the terracotta Résumé button lives on a separate layer
+  // to keep its colour.
+  const blend = !scrolled && !open;
+  const pill = blend ? "bg-cream text-ink" : "bg-ink text-cream";
+  const hoverPill = blend ? "hover:bg-cream hover:text-ink" : "hover:bg-ink hover:text-cream";
+
+  const resume = (
+    <button
+      onClick={onResume}
+      className="ml-1 inline-flex items-center gap-2 rounded-full bg-accent text-cream px-4 py-2 text-xs font-semibold uppercase tracking-[0.06em] hover:-translate-y-px hover:brightness-105 transition"
+    >
+      <FileText size={14} /> Résumé
+    </button>
+  );
+
   return (
     <>
       <header
         className={`fixed top-0 inset-x-0 z-50 h-16 px-page flex items-center justify-center transition-colors duration-300 ${
           scrolled ? "bg-cream/85 backdrop-blur-md border-b border-line" : ""
-        }`}
+        } ${blend ? "mix-blend-difference text-cream" : ""}`}
       >
         <div className="w-full max-w-[1380px] flex items-center justify-between gap-6">
           <a
@@ -60,7 +77,7 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 key={id}
                 href={`#${id}`}
                 className={`px-4 py-2 rounded-full text-xs font-semibold uppercase tracking-[0.06em] transition-colors duration-200 ${
-                  active === id ? "bg-ink text-cream" : "hover:bg-ink hover:text-cream"
+                  active === id ? pill : hoverPill
                 }`}
               >
                 {label}
@@ -79,17 +96,15 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={label}
-                className="w-9 h-9 rounded-full grid place-items-center hover:bg-ink hover:text-cream transition-colors"
+                className={`w-9 h-9 rounded-full grid place-items-center transition-colors ${hoverPill}`}
               >
                 <Icon size={16} />
               </a>
             ))}
-            <button
-              onClick={onResume}
-              className={`ml-1 inline-flex items-center gap-2 rounded-full bg-accent text-cream px-4 py-2 text-xs font-semibold uppercase tracking-[0.06em] hover:-translate-y-px hover:brightness-105 transition`}
-            >
-              <FileText size={14} /> Résumé
-            </button>
+            {/* invisible twin reserves the real button's space */}
+            <span className="invisible" aria-hidden inert>
+              {resume}
+            </span>
           </div>
 
           <button
@@ -109,6 +124,11 @@ export const Navbar = ({ onResume }: { onResume: () => void }) => {
           </button>
         </div>
       </header>
+
+      {/* the real Résumé button, unblended, aligned over its twin */}
+      <div className="hidden md:flex fixed top-0 inset-x-0 z-50 h-16 px-page items-center justify-center pointer-events-none">
+        <div className="w-full max-w-[1380px] flex justify-end [&>*]:pointer-events-auto">{resume}</div>
+      </div>
 
       <AnimatePresence>
         {open && (

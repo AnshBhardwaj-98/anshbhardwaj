@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import { motion, useScroll, useSpring } from "framer-motion";
 import { ReactLenis } from "lenis/react";
 import "lenis/dist/lenis.css";
 import { Navbar } from "./components/layout/Navbar";
@@ -14,9 +14,16 @@ import { Contact } from "./components/sections/Contact";
 import { ResumeModal } from "./components/ui/ResumeModal";
 import { Preloader } from "./components/ui/Preloader";
 
+// Start downloading the hero's three.js/fluid chunk right away instead of after the preloader
+void import("./components/ui/FluidReveal");
+
 export default function App() {
-  const [loaded, setLoaded] = useState(false);
-  const onLoaded = useCallback(() => setLoaded(true), []);
+  // The intro plays on every page load (including hard reloads).
+  // `ready` mounts the page while the intro still covers the screen; `introDone` removes the intro.
+  const [ready, setReady] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
+  const onCovered = useCallback(() => setReady(true), []);
+  const onIntroDone = useCallback(() => setIntroDone(true), []);
   const [resumeOpen, setResumeOpen] = useState(false);
   const openResume = () => setResumeOpen(true);
   const { scrollYProgress } = useScroll();
@@ -26,9 +33,9 @@ export default function App() {
     // anchors: Lenis handles #links itself (it honours the 64px scroll-margin-top in index.css)
     <ReactLenis root options={{ lerp: 0.1, anchors: true }}>
       <div className="relative w-full">
-        <AnimatePresence>{!loaded && <Preloader onDone={onLoaded} />}</AnimatePresence>
+        {!introDone && <Preloader onCovered={onCovered} onDone={onIntroDone} />}
         <motion.div className="fixed top-0 inset-x-0 h-0.5 bg-accent origin-left z-[60]" style={{ scaleX }} />
-        {loaded && (
+        {ready && (
           <>
             <Navbar onResume={openResume} />
 

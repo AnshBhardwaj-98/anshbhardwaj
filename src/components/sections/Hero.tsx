@@ -48,6 +48,9 @@ export const Hero = () => {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref);
   const [webgl, setWebgl] = useState(hasWebGL);
+  // The static cream wordmark stays on top until the WebGL layer has painted, so the dark video
+  // underneath never flashes through a not-yet-drawn (transparent) canvas
+  const [fluidReady, setFluidReady] = useState(false);
 
   return (
     <section ref={ref} id="hero" className="relative h-svh min-h-[560px] overflow-hidden bg-ink">
@@ -58,12 +61,18 @@ export const Hero = () => {
           onError={(error) => console.error("Hero fluid effect failed, using static fallback:", error)}
         >
           <Suspense fallback={<StaticWordmark />}>
-            <FluidReveal word={WORD} active={inView} onContextLost={() => setWebgl(false)} />
+            <FluidReveal
+              word={WORD}
+              active={inView}
+              onContextLost={() => setWebgl(false)}
+              onReady={() => setFluidReady(true)}
+            />
           </Suspense>
         </ErrorBoundary>
       ) : (
         <StaticWordmark />
       )}
+      {webgl && !fluidReady && <StaticWordmark />}
 
       <h1 className="sr-only">
         {profile.name}, {profile.role}

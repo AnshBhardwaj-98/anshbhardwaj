@@ -35,34 +35,66 @@ const Roll = ({ children }: { children: React.ReactNode }) => (
     </span>
     <span
       aria-hidden
-      className="absolute inset-0 block translate-y-full text-accent transition-transform duration-500 ease-out-expo group-hover:translate-y-0"
+      className="absolute inset-0 block translate-y-full text-accent select-none transition-transform duration-500 ease-out-expo group-hover:translate-y-0"
     >
       {children}
     </span>
   </span>
 );
 
-const Arrow = () => (
-  <ArrowUpRight className="w-[0.55em] h-[0.55em] shrink-0 text-accent opacity-0 -translate-x-3 translate-y-2 group-hover:opacity-100 group-hover:translate-x-0 group-hover:translate-y-0 transition duration-500 ease-out-expo" />
-);
-
-const bigLink =
-  "group inline-flex items-center gap-3 font-display font-medium tracking-[-0.02em] leading-[1.2] text-[clamp(22px,3.4vw,56px)]";
-
-const Row = ({ index, label, children }: { index: number; label: string; children: React.ReactNode }) => (
-  <motion.div
-    className="grid grid-cols-[64px_1fr] md:grid-cols-2 gap-6 md:gap-10 border-t border-white/10 pt-[clamp(18px,2.4vw,32px)]"
-    initial={{ opacity: 0, y: 40 }}
-    whileInView={{ opacity: 1, y: 0 }}
-    viewport={{ once: true, margin: "-10%" }}
-    transition={{ duration: 0.9, delay: index * 0.08, ease }}
-  >
-    <span className="text-right text-cream/45 text-sm pt-[0.7em] tabular-nums">
-      <span className="text-accent">0{index + 1}</span> — {label}
-    </span>
-    <div className="flex flex-col items-start gap-1">{children}</div>
-  </motion.div>
-);
+// One card in the uneven link grid: index + arrow up top, condensed label + detail at the bottom.
+// Hover floods it with terracotta from the bottom (the preloader's column motion).
+const LinkCard = ({
+  index,
+  label,
+  detail,
+  span,
+  href,
+  onClick,
+}: {
+  index: number;
+  label: string;
+  detail: string;
+  span: string; // grid placement, e.g. "col-span-2 md:col-span-7"
+  href?: string;
+  onClick?: () => void;
+}) => {
+  const Tag = href ? "a" : "button";
+  const external = href && !href.startsWith("mailto:");
+  return (
+    <motion.li
+      className={span}
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-8%" }}
+      transition={{ duration: 0.9, delay: index * 0.07, ease }}
+    >
+      <Tag
+        {...(href ? { href, ...(external && { target: "_blank", rel: "noopener noreferrer" }) } : { onClick, type: "button" })}
+        className="group relative w-full h-full min-h-[clamp(150px,15vw,230px)] flex flex-col justify-between gap-6 border border-white/12 p-[clamp(16px,1.6vw,26px)] text-left overflow-hidden"
+      >
+        <span className="absolute inset-0 bg-accent origin-bottom scale-y-0 group-hover:scale-y-100 group-focus-visible:scale-y-100 transition-transform duration-500 ease-out-expo" />
+        <span className="relative flex items-start justify-between">
+          <span className="text-xs tabular-nums tracking-[0.1em] text-cream/45 group-hover:text-ink transition-colors duration-300">
+            0{index + 1}
+          </span>
+          <ArrowUpRight
+            strokeWidth={1.25}
+            className="w-6 h-6 text-accent group-hover:text-ink group-hover:rotate-45 transition duration-500 ease-out-expo"
+          />
+        </span>
+        <span className="relative">
+          <span className="block display text-[clamp(30px,3.4vw,58px)] group-hover:text-ink transition-colors duration-300">
+            {label}
+          </span>
+          <span className="block mt-2 text-[13px] text-cream/55 group-hover:text-ink/80 transition-colors duration-300 truncate">
+            {detail}
+          </span>
+        </span>
+      </Tag>
+    </motion.li>
+  );
+};
 
 // One letter of the footer name: rises out of its mask on a slightly later slice of the reveal than the last
 const Letter = ({
@@ -96,7 +128,7 @@ export const Footer = ({ onResume }: { onResume: () => void }) => {
   // Reveal progress: 0 when the knockout panel enters from below, 1 at the very end of the page
   const revealRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: reveal } = useScroll({ target: revealRef, offset: ["start end", "end start"] });
-  const panX = useTransform(reveal, [0, 1], [0, -2600]);
+  const panX = useTransform(reveal, [0, 1], [0, -1500]);
   const videoScale = useTransform(reveal, [0.2, 1], [1.25, 1]);
   const contentY = useTransform(reveal, [0.2, 1], ["18vh", "0vh"]);
   const metaOpacity = useTransform(reveal, [0.7, 0.95], [0, 1]);
@@ -110,45 +142,24 @@ export const Footer = ({ onResume }: { onResume: () => void }) => {
   return (
     <>
       {/* 1. Contact list */}
-      <section className="relative z-10 bg-ink text-cream px-page pt-[16vh] pb-[12vh]">
-        <motion.p
-          className="eyebrow text-accent mb-[6vh]"
+      <section className="relative z-10 bg-ink text-cream px-page pt-[14vh] pb-[10vh]">
+        <motion.div
+          className="flex justify-between items-end gap-6 mb-[5vh] text-xs uppercase tracking-[0.14em]"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
         >
-          Contact
-        </motion.p>
-        <div className="flex flex-col gap-[clamp(22px,3vw,40px)] max-w-[1400px]">
-          <Row index={0} label="Email">
-            <a href={`mailto:${profile.email}`} className={bigLink}>
-              <Roll>
-                {/* only allow a line break after the @ */}
-                {profile.email.split("@")[0]}@<wbr />
-                {profile.email.split("@")[1]}
-              </Roll>
-              <Arrow />
-            </a>
-          </Row>
-          <Row index={1} label="Social">
-            {[
-              { label: "LinkedIn", href: profile.linkedin },
-              { label: "GitHub", href: profile.github },
-              { label: "LeetCode", href: profile.leetcode },
-            ].map((l) => (
-              <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className={bigLink}>
-                <Roll>{l.label}</Roll>
-                <Arrow />
-              </a>
-            ))}
-          </Row>
-          <Row index={2} label="Résumé">
-            <button onClick={onResume} className={bigLink}>
-              <Roll>Get my résumé</Roll>
-              <Arrow />
-            </button>
-          </Row>
-        </div>
+          <span className="text-accent whitespace-nowrap">( Find me elsewhere )</span>
+          <span className="hidden sm:block text-cream/45">Replies within a day</span>
+        </motion.div>
+        {/* uneven bento: 7 + 5 on the first row, 3 + 5 + 4 on the second (12-col); 2-col on phones */}
+        <ul className="grid grid-cols-2 md:grid-cols-12 gap-2">
+          <LinkCard index={0} span="col-span-2 md:col-span-7" label="Email" detail={profile.email} href={`mailto:${profile.email}`} />
+          <LinkCard index={1} span="col-span-1 md:col-span-5" label="LinkedIn" detail="in/divyanshbhardwaj001" href={profile.linkedin} />
+          <LinkCard index={2} span="col-span-1 md:col-span-3" label="GitHub" detail="@AnshBhardwaj-98" href={profile.github} />
+          <LinkCard index={3} span="col-span-1 md:col-span-5" label="LeetCode" detail="355+ problems solved" href={profile.leetcode} />
+          <LinkCard index={4} span="col-span-1 md:col-span-4" label="Résumé" detail="PDF · 2026" onClick={onResume} />
+        </ul>
 
         <div className="mt-[12vh] flex flex-col md:flex-row md:items-end justify-between gap-6 text-sm">
           <nav className="flex flex-wrap gap-x-6 gap-y-2">
@@ -164,16 +175,16 @@ export const Footer = ({ onResume }: { onResume: () => void }) => {
 
       {/* 2. Knockout panel: moving transparent letters reveal the footer layer behind */}
       <div ref={revealRef} className="relative z-10 -mb-px" aria-hidden>
-        <svg viewBox="0 0 1920 520" className="block w-full h-auto">
+        <svg viewBox="0 0 1920 300" className="block w-full h-auto">
           <defs>
-            <mask id="footer-knockout" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="520">
-              <rect width="1920" height="520" fill="white" />
-              <motion.text x="60" y="430" fontSize="470" className="display" fill="black" style={{ x: panX }}>
+            <mask id="footer-knockout" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="300">
+              <rect width="1920" height="300" fill="white" />
+              <motion.text x="60" y="250" fontSize="270" className="display" fill="black" style={{ x: panX }}>
                 Get in touch — Get in touch —
               </motion.text>
             </mask>
           </defs>
-          <rect width="1920" height="520" fill="var(--color-ink)" mask="url(#footer-knockout)" />
+          <rect width="1920" height="300" fill="var(--color-ink)" mask="url(#footer-knockout)" />
         </svg>
       </div>
 

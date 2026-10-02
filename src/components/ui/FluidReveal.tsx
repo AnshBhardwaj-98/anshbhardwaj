@@ -268,7 +268,16 @@ function createInk(base: THREE.Texture, reveal: THREE.Texture) {
   };
 }
 
-const Scene = ({ word, getPointer }: { word: string; getPointer: (now: number) => THREE.Vector2 }) => {
+const Scene = ({
+  word,
+  getPointer,
+  onReady,
+}: {
+  word: string;
+  getPointer: (now: number) => THREE.Vector2;
+  onReady: () => void;
+}) => {
+  const frames = useRef(0);
   const { size } = useThree();
   const [wordmark] = useState(() => createWordmark(word));
   const [ink] = useState(() => createInk(wordmark.base, wordmark.reveal));
@@ -287,6 +296,8 @@ const Scene = ({ word, getPointer }: { word: string; getPointer: (now: number) =
     const pointer = getPointer(now);
     fluid.render({ ...state, pointer });
     ink.step(state.gl, fluid.velocity, pointer, state.size.width, state.size.height, Math.min(delta * 1000, 50));
+    // A frame has definitely reached the screen by the 2nd tick: tell the hero it can drop its static cover
+    if (++frames.current === 2) onReady();
   });
 
   return (
@@ -301,10 +312,12 @@ export default function FluidReveal({
   word,
   active,
   onContextLost,
+  onReady,
 }: {
   word: string;
   active: boolean;
   onContextLost: () => void;
+  onReady: () => void;
 }) {
   const wrap = useRef<HTMLDivElement>(null);
   const pointer = useRef(new THREE.Vector2(0, 0));
@@ -345,7 +358,7 @@ export default function FluidReveal({
         // A lost GPU context leaves a transparent canvas (just the dark video); let the hero fall back
         onCreated={({ gl }) => gl.domElement.addEventListener("webglcontextlost", onContextLost, { once: true })}
       >
-        <Scene word={word} getPointer={getPointer} />
+        <Scene word={word} getPointer={getPointer} onReady={onReady} />
       </Canvas>
     </div>
   );

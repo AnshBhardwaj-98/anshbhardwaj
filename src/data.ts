@@ -1,5 +1,3 @@
-import { BrainCircuit, Server, Layout, Database, type LucideIcon } from "lucide-react";
-
 // Content source: divyansh_bhardwaj.pdf (latest resume)
 
 export const profile = {
@@ -23,8 +21,6 @@ export const navItems = [
 export type Capability = {
   title: string;
   desc: string;
-  Icon: LucideIcon;
-  hue: string;
   stack: string[];
 };
 
@@ -32,29 +28,21 @@ export const capabilities: Capability[] = [
   {
     title: "AI & LLM Pipelines",
     desc: "Multi-stage LLM pipelines with structured outputs, speech-to-text, and permission-aware RAG over vector search and knowledge graphs.",
-    Icon: BrainCircuit,
-    hue: "#c26d50",
     stack: ["OpenAI API", "Gemini", "RAG", "Knowledge Graphs", "Speech-to-Text", "pgvector", "PyTorch", "Hugging Face", "Langfuse"],
   },
   {
     title: "Backend & APIs",
     desc: "Multi-tenant FastAPI and Node.js backends with RBAC, background jobs, and real-time streaming over WebSockets and SSE.",
-    Icon: Server,
-    hue: "#c26d50",
     stack: ["FastAPI", "Node.js", "Express.js", "Flask", "SQLAlchemy", "Celery", "Redis", "WebSockets", "SSE", "REST APIs"],
   },
   {
     title: "Full-Stack Product",
     desc: "React and Next.js products shipped end to end, from bulk-edit grids over whole store catalogs to live collaborative editors.",
-    Icon: Layout,
-    hue: "#c26d50",
     stack: ["React.js", "Next.js", "TypeScript", "Vite", "Tailwind CSS", "React Native", "IndexedDB"],
   },
   {
     title: "Data & DevOps",
     desc: "PostgreSQL schemas and migrations, Dockerised deploys, and CI pipelines running hundreds of automated tests.",
-    Icon: Database,
-    hue: "#c26d50",
     stack: ["PostgreSQL", "MySQL", "MongoDB", "Supabase", "AWS S3", "Docker", "GitHub Actions", "Railway", "Vercel", "Alembic", "pytest"],
   },
 ];

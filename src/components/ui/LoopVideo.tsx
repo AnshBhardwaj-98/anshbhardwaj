@@ -30,11 +30,12 @@ export const LoopVideo = ({ src, className = "", playing }: { src: string; class
     <video
       ref={ref}
       src={src}
-      poster={src.replace(/\.mp4$/, ".jpg")}
+      // controlled (footer) videos skip even the poster download until they are actually needed
+      poster={controlled && !playing ? undefined : src.replace(/\.mp4$/, ".jpg")}
       muted
       loop
       playsInline
-      preload="metadata"
+      preload={controlled ? "none" : "metadata"} // controlled (footer) videos load only when told to play
       aria-hidden
       className={`absolute inset-0 w-full h-full object-cover pointer-events-none ${className}`}
     />

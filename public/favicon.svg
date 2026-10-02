@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- square split on the diagonal: onyx / cream, with a terracotta D across the seam -->
+  <clipPath id="r"><rect width="64" height="64" rx="12"/></clipPath>
+  <g clip-path="url(#r)">
+    <rect width="64" height="64" fill="#faf9f6"/>
+    <path d="M0 0H64L0 64Z" fill="#0f0f0f"/>
+  </g>
+  <path fill="#c26d50" fill-rule="evenodd" d="M19 13H32A19 19 0 0 1 32 51H19ZM28.5 22V42H32A10 10 0 0 0 32 22Z"/>
+</svg>
