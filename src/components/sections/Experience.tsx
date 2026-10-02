@@ -1,74 +1,83 @@
-import { motion } from "framer-motion";
-import { SectionHeading } from "../ui/SectionHeading";
-import { MapPin, Gauge } from "lucide-react";
+import { useRef, useState } from "react";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
+import { MapPin } from "lucide-react";
+import { capabilities, experiences } from "../../data";
 
-const experiences = [
-  {
-    role: "Generative AI Engineer",
-    company: "Synergy Labs",
-    period: "Present",
-    location: "Gurugram, India",
-    points: [
-      "Architecting LLM-driven internal automation systems.",
-      "Optimizing fine-tuning pipelines for proprietary models.",
-      "Developing high-throughput API layers for real-time inference.",
-    ],
-  },
-  {
-    role: "Software Engineering Intern",
-    company: "Uplyift",
-    period: "2026",
-    location: "Delhi, India",
-    points: [
-      "Engineered Shopify admin scale systems with SSE streaming.",
-      "Built FastAPI backends for high-concurrency management.",
-    ],
-  },
-];
+const stack = [...new Set(capabilities.flatMap((c) => c.stack))];
 
 export const Experience = () => {
+  const [tab, setTab] = useState(0);
+  const exp = experiences[tab];
+
+  // jjettas "Partnerships" heading: solid copy is revealed left-to-right over a hollow copy as you scroll
+  const headRef = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress } = useScroll({ target: headRef, offset: ["start 90%", "start 30%"] });
+  const clip = useTransform(scrollYProgress, (p) => `inset(0 ${100 - p * 100}% 0 0)`);
+
   return (
-    <section id="experience" className="py-32 px-6 md:px-24 bg-surface-layered relative">
-      <SectionHeading align="left">Paddock / Experience</SectionHeading>
+    <section id="experience" className="relative py-[12vh] px-page bg-cream overflow-hidden">
+      <span className="eyebrow text-accent mb-5">Experience</span>
+      <h2 ref={headRef} className="display relative whitespace-nowrap text-[clamp(64px,17vw,320px)] mb-10">
+        <span className="text-outline">Experience</span>
+        <motion.span className="absolute inset-0 text-ink" style={{ clipPath: clip }} aria-hidden>
+          Experience
+        </motion.span>
+      </h2>
 
-      <div className="space-y-1 mt-20">
-        {experiences.map((exp, index) => (
-          <motion.div
-            key={index}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.1 }}
-            className="group grid grid-cols-1 md:grid-cols-12 gap-8 bg-surface-base p-10 hover:bg-chassis hover:text-white transition-all duration-500 cursor-default"
+      <div className="flex flex-wrap gap-1.5 mb-9" role="tablist">
+        {experiences.map((e, i) => (
+          <button
+            key={e.company}
+            role="tab"
+            aria-selected={i === tab}
+            onClick={() => setTab(i)}
+            className={`px-[18px] py-[9px] border text-xs uppercase tracking-[0.06em] transition-colors ${
+              i === tab ? "bg-ink border-ink text-cream" : "border-line text-muted hover:text-ink"
+            }`}
           >
-            {/* Timeline info */}
-            <div className="md:col-span-3 space-y-4">
-              <div className="flex items-center gap-3">
-                <Gauge size={16} className="text-ignitionRed" />
-                <span className="text-[10px] font-black uppercase tracking-[0.3em] group-hover:text-telemetryYellow">{exp.period}</span>
-              </div>
-              <h3 className="text-xl font-black uppercase italic leading-none">{exp.company}</h3>
-              <div className="flex items-center gap-2 text-xs font-bold text-chassis/40 group-hover:text-white/40">
-                <MapPin size={12} /> {exp.location}
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="md:col-span-9 space-y-6 md:border-l border-chassis/5 md:pl-12 group-hover:border-white/10 transition-colors">
-              <h4 className="text-2xl font-black uppercase tracking-tight italic text-ignitionRed group-hover:text-telemetryYellow">
-                {exp.role}
-              </h4>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {exp.points.map((point, i) => (
-                  <li key={i} className="flex gap-4 text-sm font-medium leading-relaxed opacity-70 group-hover:opacity-100">
-                    <span className="w-1.5 h-1.5 bg-ignitionRed mt-2 shrink-0 group-hover:bg-telemetryYellow" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </motion.div>
+            {e.company}
+          </button>
         ))}
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -12 }}
+          transition={{ duration: 0.35 }}
+          className="grid grid-cols-1 md:grid-cols-[1.1fr_1fr] gap-[50px] min-h-[300px]"
+        >
+          <div>
+            <h3 className="font-display text-[clamp(26px,2.6vw,40px)] font-semibold tracking-tight mb-4">{exp.role}</h3>
+            <div className="flex flex-wrap gap-x-6 gap-y-2 text-muted-2 text-sm border-y border-hairline py-3.5">
+              <span className="text-ink">{exp.company}</span>
+              <span>{exp.period}</span>
+              <span className="inline-flex items-center gap-1.5">
+                <MapPin size={13} /> {exp.location}
+              </span>
+            </div>
+          </div>
+          <div className="grid gap-[18px]">
+            {exp.points.map((p) => (
+              <div key={p.t} className="border-l-2 border-line hover:border-accent transition-colors pl-[18px]">
+                <p className="font-display text-lg mb-1.5">{p.t}</p>
+                <p className="text-muted text-sm leading-[1.5]">{p.d}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      <div className="mt-[10vh] -mx-[clamp(20px,3.2vw,64px)] border-y border-line py-6 overflow-hidden" aria-hidden>
+        <div className="flex w-max animate-marquee">
+          {[...stack, ...stack].map((t, i) => (
+            <span key={i} className="display text-[clamp(32px,4vw,64px)] text-muted-dark px-8 hover:text-accent transition-colors">
+              {t}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );

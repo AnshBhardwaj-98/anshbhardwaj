@@ -92,3 +92,7 @@ gsd-temp/
 .turbo/
 .vercel/
 .netlify/
+.vscode/
+
+# Original full-size media (compressed copies live in public/)
+media-src/
