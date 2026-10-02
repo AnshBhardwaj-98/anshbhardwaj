@@ -1,189 +1,103 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowUp,
-  Flag,
-  Globe,
-  Zap,
-  Code2,
-  Share2,
-  Target,
-  Mail,
-} from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
+import { capabilities, navItems, profile, projects } from "../../data";
 
-export const Footer = () => {
-  const [showBackToTop, setShowBackToTop] = useState(false);
-  const currentYear = new Date().getFullYear();
+const techStack = [...new Set(capabilities.flatMap((c) => c.stack))];
 
-  useEffect(() => {
-    const handleScroll = () => setShowBackToTop(window.scrollY > 500);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+const Col = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <div>
+    <p className="flex items-center gap-2.5 text-muted text-xs uppercase tracking-[0.08em] pb-[18px] border-b border-hairline mb-3">
+      <span className="w-2 h-2 bg-neon" /> {title}
+    </p>
+    {children}
+  </div>
+);
 
-  const socialLinks = [
-    {
-      label: "GITHUB",
-      icon: Code2,
-      href: "https://github.com/AnshBhardwaj-98",
-      value: "REPO_ACCESS",
-    },
-    {
-      label: "LINKEDIN",
-      icon: Share2,
-      href: "https://linkedin.com/in/divyanshbhardwaj001",
-      value: "NETWORK_ID",
-    },
-    {
-      label: "EMAIL",
-      icon: Mail,
-      href: "mailto:contact@anshbhardwaj.com",
-      value: "DIRECT_CONTACT",
-    },
-    {
-      label: "LEETCODE",
-      icon: Target,
-      href: "https://leetcode.com/u/itsanshbhardwaj/",
-      value: "SIGNAL_OUT",
-    },
-    { label: "PORTFOLIO", icon: Globe, href: "#", value: "v4.2_LIVE" },
-  ];
+const linkCls =
+  "block text-xs text-[#cfcfcf] px-1.5 py-[7px] transition-[background-color,color,padding] duration-300 hover:bg-neon hover:text-ink hover:pl-3.5";
 
-  return (
-    <footer className="relative z-10 bg-surface-base border-t-12 border-chassis">
-      {/* Visual Accents */}
-      <div className="absolute inset-0 checkered-pattern opacity-[0.03] pointer-events-none" />
-      <div className="absolute top-0 right-0 w-64 h-64 carbon-fiber opacity-[0.05] pointer-events-none" />
-
-      <div className="max-w-7xl mx-auto px-6 md:px-24 py-24 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
-          {/* Main Branding Block */}
-          <div className="lg:col-span-6 space-y-12">
-            <div className="flex items-start gap-8">
-              <div className="w-24 h-24 bg-chassis text-white flex items-center justify-center rounded-none shadow-2xl relative group overflow-hidden">
-                <div className="absolute inset-0 bg-ignitionRed translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                <Flag
-                  className="relative z-10 text-telemetryYellow group-hover:text-white transition-colors"
-                  size={40}
-                />
-              </div>
-              <div>
-                <h2 className="text-5xl md:text-7xl font-black text-chassis tracking-tighter uppercase italic leading-[0.8] mb-4">
-                  Ansh <br />
-                  <span className="text-ignitionRed">Bhardwaj</span>
-                </h2>
-                <div className="flex items-center gap-4 text-chassis/40">
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                    Sector_DB105
-                  </span>
-                  <div className="h-px w-12 bg-chassis/10" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.4em]">
-                    F1_ENG_v4
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <p className="text-chassis/60 text-lg font-display uppercase tracking-tight max-w-md leading-tight border-l-4 border-telemetryYellow pl-8 py-2">
-              Architecting high-throughput{" "}
-              <span className="text-chassis font-black italic">
-                Generative AI systems
-              </span>{" "}
-              and intelligent automation pipelines. Engineered for maximum
-              velocity and zero latency.
-            </p>
-          </div>
-
-          {/* Social & Meta Grid */}
-          <div className="lg:col-span-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-            {socialLinks.map((item, i) => (
+export const Footer = ({ onResume }: { onResume: () => void }) => (
+  <footer className="relative bg-ink pt-[20vh] pb-11 px-page min-h-[96vh] flex items-end">
+    <div className="w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-[60px] pb-[6vh]">
+        <div>
+          <p className="font-display font-bold text-[22px] tracking-tight">{profile.name}</p>
+          <p className="text-muted mt-6 text-sm">{profile.role}</p>
+          <div className="flex flex-col items-start gap-1 mt-6">
+            {[
+              { label: "GitHub", href: profile.github },
+              { label: "LinkedIn", href: profile.linkedin },
+              { label: "LeetCode", href: profile.leetcode },
+            ].map((l) => (
               <a
-                key={i}
-                href={item.href}
+                key={l.label}
+                href={l.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group p-8 bg-surface-container hover:bg-chassis transition-all duration-500 relative overflow-hidden"
+                className="inline-flex items-center gap-2 text-sm px-2 py-1 -ml-2 transition hover:bg-neon hover:text-ink hover:translate-x-1.5"
               >
-                {/* Background ID Tag */}
-                <span className="absolute top-2 right-4 text-[7px] font-black text-chassis/10 group-hover:text-white/10 uppercase tracking-widest">
-                  Link_Entry_0{i + 1}
-                </span>
-
-                <div className="flex items-center gap-6 mb-4">
-                  <div className="p-3 bg-white shadow-sm group-hover:bg-ignitionRed transition-colors">
-                    <item.icon
-                      size={20}
-                      className="text-chassis group-hover:text-white transition-colors"
-                    />
-                  </div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-chassis/40 group-hover:text-white/40">
-                    {item.label}
-                  </h4>
-                </div>
-                <div className="flex justify-between items-end">
-                  <span className="text-sm font-black text-chassis uppercase italic group-hover:text-telemetryYellow transition-colors">
-                    {item.value}
-                  </span>
-                  <Zap
-                    size={14}
-                    className="text-ignitionRed opacity-0 group-hover:opacity-100 transition-opacity"
-                  />
-                </div>
+                {l.label} <ArrowUpRight size={14} />
               </a>
             ))}
+            <button
+              onClick={onResume}
+              className="inline-flex items-center gap-2 text-sm px-2 py-1 -ml-2 transition hover:bg-neon hover:text-ink hover:translate-x-1.5"
+            >
+              Résumé <ArrowUpRight size={14} />
+            </button>
           </div>
         </div>
 
-        {/* Bottom Metadata Bar */}
-        <div className="mt-32 pt-12 border-t border-chassis/5 flex flex-col md:flex-row justify-between items-end gap-10">
-          <div className="space-y-4">
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div
-                  key={i}
-                  className={`w-6 h-1 ${i <= 4 ? "bg-chassis" : "bg-chassis/10"}`}
-                />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[30px]">
+          <Col title="Navigate">
+            {navItems.map((n) => (
+              <a key={n.id} href={`#${n.id}`} className={linkCls}>
+                {n.label}
+              </a>
+            ))}
+          </Col>
+          <Col title="Focus">
+            {capabilities.map((c) => (
+              <a key={c.title} href="#capabilities" className={linkCls}>
+                {c.title}
+              </a>
+            ))}
+          </Col>
+          <Col title="Projects">
+            {projects.map((p) => (
+              <a key={p.title} href={p.link} target="_blank" rel="noopener noreferrer" className={linkCls}>
+                {p.title}
+              </a>
+            ))}
+          </Col>
+          <Col title="Tech Stack">
+            <div className="flex flex-wrap gap-[7px]">
+              {techStack.map((t) => (
+                <span
+                  key={t}
+                  className="text-[11px] text-[#cfcfcf] border border-line bg-white/[0.03] px-[9px] py-[5px] rounded-full hover:border-neon hover:text-neon transition-colors"
+                >
+                  {t}
+                </span>
               ))}
             </div>
-            <p className="text-[9px] font-black uppercase tracking-[0.5em] text-chassis/30">
-              © {currentYear} DB105 // THE AERODYNAMIC EDGE // ALL SYSTEMS
-              NOMINAL
-            </p>
-          </div>
-
-          <div className="text-right">
-            <span className="text-[8px] font-black uppercase tracking-[0.4em] text-ignitionRed block mb-2 italic">
-              Maximum_Velocity_Protocol
-            </span>
-            <p className="text-xs font-black uppercase italic text-chassis">
-              Built for the podium.
-            </p>
-          </div>
+          </Col>
         </div>
       </div>
 
-      {/* High-Performance Back to Top */}
-      <AnimatePresence>
-        {showBackToTop && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.8, x: 20 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
-            exit={{ opacity: 0, scale: 0.8, x: 20 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-12 right-12 z-50 w-20 h-20 bg-ignitionRed text-white flex flex-col items-center justify-center hover:bg-chassis transition-all shadow-2xl group border-none rounded-none"
-          >
-            <ArrowUp
-              size={24}
-              className="group-hover:-translate-y-1 transition-transform mb-1"
-            />
-            <span className="text-[7px] font-black uppercase tracking-widest">
-              TOP
-            </span>
-          </motion.button>
-        )}
-      </AnimatePresence>
-    </footer>
-  );
-};
+      {/* Wordmark */}
+      <p
+        aria-hidden
+        className="display text-[22vw] whitespace-nowrap mt-[12vh] mb-5 -ml-[0.04em]"
+      >
+        Divyansh<span className="text-neon">.</span>
+      </p>
+
+      <div className="flex flex-col sm:flex-row justify-between gap-3 border-t border-hairline pt-5 text-xs text-muted-2">
+        <span>{profile.role}</span>
+        <span>
+          © {new Date().getFullYear()} {profile.name}. All rights reserved.
+        </span>
+      </div>
+    </div>
+  </footer>
+);

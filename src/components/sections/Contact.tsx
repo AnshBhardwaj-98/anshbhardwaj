@@ -1,29 +1,22 @@
-import { useState, useRef } from "react";
-import {
-  Send,
-  Code2,
-  Share2,
-  Target,
-  Zap,
-  Activity,
-  Loader2,
-  CheckCircle,
-  Mail,
-} from "lucide-react";
+import { useRef, useState } from "react";
 import emailjs from "@emailjs/browser";
-import { SectionHeading } from "../ui/SectionHeading";
-import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUpRight, Loader2, Mail, MapPin } from "lucide-react";
+import { profile } from "../../data";
+import { RevealLines } from "../ui/Reveal";
+import { GithubIcon, LinkedinIcon } from "../ui/BrandIcons";
 
-export const Contact = () => {
+type Status = "idle" | "sending" | "success" | "error";
+
+const field =
+  "w-full bg-white/[0.03] border border-line px-4 py-3.5 text-cream placeholder:text-muted-dark focus:outline-none focus:border-neon transition-colors";
+
+export const Contact = ({ onResume }: { onResume: () => void }) => {
   const formRef = useRef<HTMLFormElement>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [status, setStatus] = useState<Status>("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setStatus("idle");
-
+    setStatus("sending");
     try {
       await emailjs.sendForm(
         import.meta.env.VITE_EMAILJS_SERVICE_ID,
@@ -31,244 +24,87 @@ export const Contact = () => {
         formRef.current!,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       );
-
-      setIsSubmitting(false);
-      setStatus("success");
       formRef.current?.reset();
-
-      setTimeout(() => setStatus("idle"), 5000);
+      setStatus("success");
     } catch (error) {
-      console.error("Transmission Error:", error);
-      setIsSubmitting(false);
+      console.error("Contact form error:", error);
       setStatus("error");
-      setTimeout(() => setStatus("idle"), 5000);
     }
+    setTimeout(() => setStatus("idle"), 5000);
   };
 
   return (
-    <section
-      id="contact-form"
-      className="py-32 px-6 md:px-24 bg-chassis relative overflow-hidden"
-    >
-      {/* Background technical elements */}
-      <div className="absolute inset-0 checkered-pattern opacity-[0.04]" />
-      <div className="absolute top-0 left-0 w-full h-1 bg-linear-to-r from-transparent via-ignitionRed to-transparent opacity-20" />
+    <section id="contact" className="relative min-h-screen flex items-center overflow-hidden bg-ink-2 py-[14vh] px-page">
+      <div className="absolute inset-0 grid-fx opacity-60" />
+      <div className="absolute inset-0 bg-[linear-gradient(335deg,rgba(11,11,13,0.94)_0%,rgba(11,11,13,0.7)_45%,rgba(11,11,13,0.5)_100%)]" />
+      <div className="absolute -bottom-1/3 -left-1/4 w-[60vw] h-[60vw] rounded-full bg-neon/10 blur-[140px]" />
 
-      {/* Aesthetic Aero Glow */}
-      <div className="absolute -bottom-1/4 -left-1/4 w-1/2 h-1/2 bg-ignitionRed/5 blur-[120px] rounded-full" />
+      <div className="relative z-10 w-full grid grid-cols-1 xl:grid-cols-[1.3fr_1fr] gap-16 items-end">
+        <div>
+          <span className="eyebrow text-neon mb-6">Get Started</span>
+          <h2 className="display text-[clamp(64px,11vw,200px)]">
+            <RevealLines lines={["Let's build", "something", "that ships."]} accent={2} />
+          </h2>
+          <p className="text-[#d7d7d4] leading-[1.6] text-[clamp(15px,1.3vw,19px)] max-w-[560px] mt-8">
+            Open to Generative AI engineering roles, collaborations and ambitious builds. Drop a message or reach
+            out on GitHub or LinkedIn.
+          </p>
 
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-20 items-start">
-        {/* Left Side: Technical Info */}
-        <div className="lg:col-span-5">
-          <div className="inline-flex items-center gap-3 px-3 py-1 bg-white/5 border-l-2 border-telemetryYellow mb-10">
-            <Activity
-              size={12}
-              className="text-telemetryYellow animate-pulse"
-            />
-            <span className="text-[9px] font-black text-white/60 uppercase tracking-[0.4em]">
-              Available for Work
+          <div className="flex flex-wrap gap-x-8 gap-y-3.5 mt-8 text-sm text-muted">
+            <a href={`mailto:${profile.email}`} className="inline-flex items-center gap-2.5 hover:text-neon transition-colors">
+              <Mail size={16} /> {profile.email}
+            </a>
+            <span className="inline-flex items-center gap-2.5">
+              <MapPin size={16} /> {profile.location}
             </span>
           </div>
 
-          <SectionHeading align="left">
-            <span className="text-white">GET IN</span> <br />
-            <span className="text-ignitionRed italic">TOUCH</span>
-          </SectionHeading>
-
-          <p className="text-white/50 text-xl font-display uppercase tracking-tight max-w-sm mt-10 leading-tight border-l border-white/10 pl-8">
-            Establish a connection for{" "}
-            <span className="text-white font-bold italic">
-              technical
-            </span>{" "}
-            inquiries and collaborations.
-          </p>
-
-          <div className="mt-24 grid grid-cols-2 gap-4 max-w-sm">
-            {[
-              {
-                label: "GitHub",
-                icon: Code2,
-                value: "@AnshBhardwaj-98",
-                href: "https://github.com/AnshBhardwaj-98",
-              },
-              {
-                label: "LinkedIn",
-                icon: Share2,
-                value: "divyanshbhardwaj001",
-                href: "https://linkedin.com/in/divyanshbhardwaj001",
-              },
-              {
-                label: "Location",
-                icon: Target,
-                value: "NCR, India",
-                href: "#",
-              },
-              {
-                label: "LeetCode",
-                icon: Zap,
-                value: "itsanshbhardwaj",
-                href: "https://leetcode.com/u/itsanshbhardwaj/",
-              },
-            ].map((item, i) => {
-              const isClickable = item.href && item.href !== "#";
-              return (
-                <a
-                  key={i}
-                  href={item.href}
-                  target={item.href?.startsWith("http") ? "_blank" : undefined}
-                  rel={
-                    item.href?.startsWith("http")
-                      ? "noopener noreferrer"
-                      : undefined
-                  }
-                  className={`p-4 bg-white/5 border-b border-white/5 hover:bg-white/10 transition-colors group ${
-                    isClickable ? "cursor-pointer" : "cursor-default"
-                  }`}
-                >
-                  <item.icon
-                    size={16}
-                    className="text-telemetryYellow mb-3 group-hover:text-ignitionRed transition-colors"
-                  />
-                  <span className="text-[8px] font-black text-white/30 uppercase tracking-[0.2em] block mb-1">
-                    {item.label}
-                  </span>
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">
-                    {item.value}
-                  </span>
-                </a>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right Side: Form */}
-        <div className="lg:col-span-7 bg-surface-base p-8 md:p-16 rounded-sm relative shadow-2xl border-t-8 border-ignitionRed">
-          {/* Internal technical markings */}
-          <div className="absolute top-4 right-6 text-[10px] font-black text-chassis/10 uppercase tracking-widest italic">
-            Manual_Override_v4.2
-          </div>
-          <div className="absolute bottom-4 left-6 w-12 h-1 w-chassis/5 bg-chassis/5" />
-
-          <form ref={formRef} onSubmit={handleSubmit} className="space-y-12">
-            <div className="space-y-10">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                {/* NAME */}
-                <div className="relative group">
-                  <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                    Name
-                  </label>
-                  <input
-                    name="from_name"
-                    type="text"
-                    placeholder="ENTER NAME"
-                    required
-                    className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all"
-                  />
-                </div>
-
-                {/* EMAIL */}
-                <div className="relative group">
-                  <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                    Email
-                  </label>
-                  <input
-                    name="from_email"
-                    type="email"
-                    placeholder="USER@DOMAIN.COM"
-                    required
-                    className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all"
-                  />
-                </div>
-              </div>
-
-              {/* MESSAGE */}
-              <div className="relative group">
-                <label className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em] block mb-2 ml-1">
-                  Message
-                </label>
-                <textarea
-                  name="message"
-                  placeholder="ENTER YOUR MESSAGE HERE..."
-                  rows={4}
-                  required
-                  className="w-full bg-chassis/5 border-b-2 border-chassis/10 py-4 px-6 font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/20 focus:outline-none focus:border-ignitionRed transition-all resize-none"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className={`w-full py-6 font-black uppercase tracking-[0.4em] text-xs transition-all flex items-center justify-center gap-4 relative overflow-hidden group shadow-2xl ${
-                status === "success"
-                  ? "bg-green-600 text-white"
-                  : "bg-ignitionRed text-white hover:bg-chassis hover:text-telemetryYellow shadow-ignitionRed/30"
-              }`}
+          <div className="flex flex-wrap gap-3.5 mt-8">
+            <a
+              href={`mailto:${profile.email}`}
+              className="inline-flex items-center gap-2.5 rounded-full bg-neon text-ink border border-neon px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:brightness-105 transition"
             >
-              {/* High-visibility yellow notch */}
-              <div className="absolute top-0 right-0 w-3 h-3 bg-telemetryYellow transform translate-x-1.5 -translate-y-1.5 rotate-45 group-hover:w-4 group-hover:h-4 transition-all" />
-
-              <AnimatePresence mode="wait">
-                {isSubmitting ? (
-                  <motion.div
-                    key="loading"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center gap-3"
-                  >
-                    <Loader2 size={16} className="animate-spin" />
-                    <span>Sending...</span>
-                  </motion.div>
-                ) : status === "success" ? (
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center gap-3"
-                  >
-                    <CheckCircle size={16} />
-                    <span>Message Sent</span>
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="idle"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex items-center gap-3"
-                  >
-                    <span>Send Message</span>
-                    <Send
-                      size={16}
-                      className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              Email me <ArrowUpRight size={16} />
+            </a>
+            {[
+              { href: profile.github, label: "GitHub", Icon: GithubIcon },
+              { href: profile.linkedin, label: "LinkedIn", Icon: LinkedinIcon },
+            ].map(({ href, label, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-white/[0.08] hover:border-cream transition"
+              >
+                <Icon /> {label}
+              </a>
+            ))}
+            <button
+              onClick={onResume}
+              className="inline-flex items-center gap-2.5 rounded-full border border-hairline px-5 py-3 text-sm font-semibold hover:-translate-y-0.5 hover:bg-white/[0.08] hover:border-cream transition"
+            >
+              Résumé
             </button>
-
-            {/* Direct Email Option */}
-            <div className="mt-12 flex items-center justify-center gap-6">
-              <div className="h-px flex-1 bg-chassis/10" />
-              <span className="text-[9px] font-black text-chassis/40 uppercase tracking-[0.3em]">
-                OR
-              </span>
-              <div className="h-px flex-1 bg-chassis/10" />
-            </div>
-
-            <div className="w-full mt-8 p-6 bg-chassis/10 hover:bg-chassis/20 border border-chassis/20 text-center transition-all flex items-center justify-center gap-3 group">
-              <Mail
-                size={18}
-                className="text-ignitionRed   transition-colors"
-              />
-              <span className="text-sm font-black text-chassis uppercase tracking-widest group-hover:text-ignitionRed transition-colors">
-                contact@anshbhardwaj.com
-              </span>
-            </div>
-          </form>
+          </div>
         </div>
+
+        <form ref={formRef} onSubmit={handleSubmit} className="border border-line bg-ink/70 backdrop-blur-md p-6 md:p-8 space-y-4">
+          <p className="eyebrow text-muted mb-2">Send a message</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input name="from_name" required placeholder="Name" aria-label="Name" className={field} />
+            <input name="from_email" type="email" required placeholder="Email" aria-label="Email" className={field} />
+          </div>
+          <textarea name="message" required rows={5} placeholder="Message" aria-label="Message" className={`${field} resize-none`} />
+          <button
+            type="submit"
+            disabled={status === "sending"}
+            className="w-full inline-flex items-center justify-center gap-2.5 bg-cream text-ink py-3.5 text-sm font-semibold hover:bg-neon disabled:opacity-60 transition-colors"
+          >
+            {status === "sending" && <Loader2 size={16} className="animate-spin" />}
+            {{ idle: "Send message", sending: "Sending…", success: "Message sent ✓", error: "Failed, try email instead" }[status]}
+          </button>
+        </form>
       </div>
     </section>
   );

@@ -1,214 +1,124 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
-import { ResumeModal } from "../ui/ResumeModal";
-import { Download, Activity } from "lucide-react";
-import { Magnetic } from "../ui/Magnetic";
+import { lazy, Suspense, useRef, useState } from "react";
+import { ErrorBoundary } from "react-error-boundary";
+import { motion, useInView } from "framer-motion";
+import { profile } from "../../data";
+import { LoopVideo } from "../ui/LoopVideo";
+// three.js + the fluid sim are heavy; load them after first paint
+const FluidReveal = lazy(() => import("../ui/FluidReveal"));
 
+const WORD = "divyansh.";
+
+const hasWebGL = () => {
+  try {
+    return !!document.createElement("canvas").getContext("webgl2");
+  } catch {
+    return false;
+  }
+};
+
+// Shown while the fluid layer loads, and permanently if WebGL is unavailable or it crashes,
+// so a GPU problem degrades to a static hero instead of unmounting the whole page.
+const StaticWordmark = () => (
+  <div className="absolute inset-0 bg-cream flex items-center px-page">
+    <svg viewBox="0 0 100 22" className="w-full overflow-visible" aria-hidden>
+      <text
+        x="0"
+        y="17"
+        textLength="100"
+        lengthAdjust="spacingAndGlyphs"
+        fontSize="22"
+        fontWeight="800"
+        className="font-display fill-ink"
+      >
+        {WORD}
+      </text>
+    </svg>
+  </div>
+);
+
+const fade = (delay: number) => ({
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] as const },
+});
+
+// noth.in-style hero: video underneath, cream wordmark panel on top that the cursor dissolves (fluid sim),
+// and a mix-blend-difference overlay so the copy stays readable on both layers.
 export const Hero = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // Mouse position for parallax (spring-smooth)
-  const mouseX = useSpring(0, { stiffness: 100, damping: 20 });
-  const mouseY = useSpring(0, { stiffness: 100, damping: 20 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const { innerWidth, innerHeight } = window;
-      // Range: -25 to 25 for subtle movement
-      const x = (clientX / innerWidth - 0.5) * 50;
-      const y = (clientY / innerHeight - 0.5) * 50;
-      mouseX.set(x);
-      mouseY.set(y);
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []); // mouseX/mouseY are stable, no need to re-run
-
-  const { scrollY } = useScroll();
-  const nameY = useTransform(scrollY, [0, 500], [0, 100]);
-  const opacity = useTransform(scrollY, [0, 400], [1, 0]);
-
-  // Parallax transforms for background elements
-  const bgParallaxX = useTransform(mouseX, (x) => x * 0.5);
-  const bgParallaxY = useTransform(mouseY, (y) => y * 0.3);
-  const contentParallaxX = useTransform(mouseX, (x) => x * 0.2);
-  const contentParallaxY = useTransform(mouseY, (y) => y * 0.15);
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, x: -30 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      transition: { duration: 0.6, ease: [0.33, 1, 0.68, 1] },
-    },
-  } as const;
+  const ref = useRef<HTMLElement>(null);
+  const inView = useInView(ref);
+  const [webgl, setWebgl] = useState(hasWebGL);
 
   return (
-    <section
-      ref={containerRef}
-      id="hero"
-      className="relative h-screen flex flex-col justify-center items-start overflow-hidden px-6 md:px-24 bg-surface-base"
-    >
-      {/* ─── Dynamic Technical Background ─── */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        {/* Deep Aero Glow */}
-        <div className="absolute top-0 left-0 w-full h-full aero-glow-red opacity-50" />
-
-        {/* Technical Circuit Lines */}
-        <svg className="absolute inset-0 w-full h-full opacity-[0.03] stroke-chassis">
-          <pattern
-            id="circuit-grid"
-            width="100"
-            height="100"
-            patternUnits="userSpaceOnUse"
-          >
-            <path d="M 100 0 L 0 0 0 100" fill="none" strokeWidth="0.5" />
-            <circle cx="0" cy="0" r="1" fill="currentColor" />
-          </pattern>
-          <rect width="100%" height="100%" fill="url(#circuit-grid)" />
-        </svg>
-
-        {/* Moving 'Aero' Accents */}
-        <motion.div
-          style={{ x: mouseX, y: mouseY, rotate: 15 }}
-          className="absolute -top-1/2 -left-1/4 w-[150%] h-[150%] opacity-[0.02] checkered-pattern"
-        />
-
-        {/* Geometric Wing Accent */}
-        <div className="absolute top-0 right-0 w-1/2 h-full bg-linear-to-l from-chassis/[0.02] to-transparent skew-x-[-15deg] translate-x-1/4" />
-      </div>
-
-      {/* Existing Background Patterns */}
-      <div className="absolute inset-0 z-0 carbon-fiber opacity-[0.03] pointer-events-none" />
-
-      {/* Background Large Text with Mouse Parallax - Repositioned to avoid overlap */}
-      <motion.div
-        className="absolute top-1/2 right-0 z-0 select-none pointer-events-none overflow-hidden"
-        style={{ opacity, x: bgParallaxX, y: bgParallaxY, translateY: "-50%" }}
-      >
-        <h2 className="text-[20vw] font-black text-chassis/[0.02] leading-none tracking-tighter uppercase font-display italic">
-          High Performance
-        </h2>
-      </motion.div>
-
-      {/* Hero Content with Mouse Parallax */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="z-10 w-full max-w-6xl"
-        style={{ x: contentParallaxX, y: contentParallaxY }}
-      >
-        {/* Telemetry Badge */}
-        <motion.div
-          variants={itemVariants}
-          className="inline-flex items-center gap-3 px-4 py-1.5 bg-chassis text-white mb-10 rounded-sm"
+    <section ref={ref} id="hero" className="relative h-svh min-h-[560px] overflow-hidden bg-ink">
+      <LoopVideo src="/hero/loop.mp4" />
+      {webgl ? (
+        <ErrorBoundary
+          fallback={<StaticWordmark />}
+          onError={(error) => console.error("Hero fluid effect failed, using static fallback:", error)}
         >
-          <Activity size={14} className="text-telemetryYellow animate-pulse" />
-          <span className="text-[11px] font-display font-bold uppercase tracking-[0.25em]">
-            System Status: Online / {new Date().getFullYear()}
-          </span>
+          <Suspense fallback={<StaticWordmark />}>
+            <FluidReveal word={WORD} active={inView} onContextLost={() => setWebgl(false)} />
+          </Suspense>
+        </ErrorBoundary>
+      ) : (
+        <StaticWordmark />
+      )}
+
+      <h1 className="sr-only">
+        {profile.name}, {profile.role}
+      </h1>
+
+      <div className="absolute inset-0 z-10 flex flex-col justify-end px-page pt-20 pb-4 text-white mix-blend-difference pointer-events-none">
+        <motion.div {...fade(1.2)} className="mb-[clamp(24px,6vh,64px)]">
+          <p className="font-display text-[clamp(20px,1.6vw,26px)] leading-none tracking-tight">
+            Not just models, systems.
+            <br />
+            Generative AI, engineered to ship.
+          </p>
+          <a
+            href="#contact"
+            className="pointer-events-auto group mt-6 inline-flex items-center gap-3.5 rounded-full border border-white/40 bg-white text-black px-5 py-3 text-xs font-medium uppercase tracking-[0.08em] hover:border-white transition-colors"
+          >
+            Let's talk
+            <span className="relative w-3.5 h-px bg-black transition-transform group-hover:translate-x-1">
+              <span className="absolute right-0 -top-[3px] w-[7px] h-[7px] border-t border-r border-black rotate-45" />
+            </span>
+          </a>
         </motion.div>
 
-        <motion.div style={{ y: nameY }}>
-          <h1 className="text-6xl sm:text-8xl md:text-[11rem] font-black text-chassis leading-[0.8] mb-12 tracking-tighter uppercase font-display italic">
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ duration: 1, ease: [0.33, 1, 0.68, 1] }}
-                className="block"
+        <motion.div
+          {...fade(1.4)}
+          className="flex items-center justify-between gap-4 text-xs font-bold uppercase tracking-[0.03em] leading-none"
+        >
+          <span>
+            {profile.role} · {profile.location}
+          </span>
+          <div className="flex items-center gap-[22px]">
+            <div className="flex items-center gap-3.5 pointer-events-auto">
+              <a
+                href={profile.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-60 transition-opacity"
               >
-                Divyansh
-              </motion.span>
-            </div>
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{
-                  duration: 1,
-                  delay: 0.1,
-                  ease: [0.33, 1, 0.68, 1],
-                }}
-                className="block text-ignitionRed"
+                <span className="hidden md:inline">LinkedIn</span>
+                <span className="md:hidden">LKDN</span>
+              </a>
+              <span>/</span>
+              <a
+                href={profile.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:opacity-60 transition-opacity"
               >
-                Bhardwaj
-              </motion.span>
+                GitHub
+              </a>
             </div>
-          </h1>
-
-          <div className="flex flex-col md:flex-row md:items-end gap-12">
-            <motion.p
-              variants={itemVariants}
-              className="text-lg md:text-2xl text-chassis max-w-md font-medium uppercase font-display leading-tight tracking-tight border-l-4 border-telemetryYellow pl-6"
-            >
-              Generative AI Engineer at{" "}
-              <span className="text-ignitionRed">Synergy Labs</span>.
-              Architecting intelligent and scalable solutions.
-            </motion.p>
-
-            <motion.div
-              variants={itemVariants}
-              className="flex flex-wrap gap-5"
-            >
-              <Magnetic strength={0.2}>
-                <a
-                  href="#projects"
-                  className="group px-12 py-6 bg-ignitionRed text-white font-black rounded-sm uppercase tracking-[0.2em] text-sm shadow-2xl shadow-ignitionRed/40 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 flex items-center relative overflow-hidden"
-                  aria-label="Navigate to projects section"
-                >
-                  {/* High-visibility yellow notch */}
-                  <div className="absolute top-0 right-0 w-2 h-2 bg-telemetryYellow" />
-                  <span className="relative z-10">View Projects</span>
-                </a>
-              </Magnetic>
-              <Magnetic strength={0.2}>
-                <button
-                  onClick={() => setIsModalOpen(true)}
-                  className="px-12 py-6 bg-chassis text-telemetryYellow font-black rounded-sm uppercase tracking-[0.2em] text-sm shadow-2xl shadow-chassis/40 hover:scale-[1.05] hover:-translate-y-1 active:scale-[0.98] transition-all duration-300 flex items-center gap-3 border-l-4 border-telemetryYellow"
-                  aria-label="Open resume modal"
-                >
-                  <Download size={18} className="text-white" />
-                  Download Resume
-                </button>
-              </Magnetic>
-            </motion.div>
+            <span className="bg-white text-black rounded px-1 py-1">2026</span>
           </div>
         </motion.div>
-      </motion.div>
-
-      {/* Down Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 1.5 }}
-        className="absolute bottom-10 right-24 text-chassis/40 hidden md:flex flex-col items-center gap-3"
-      >
-        <span className="text-[10px] uppercase tracking-[0.5em] font-bold font-display -rotate-90 origin-center mb-12">
-          Scroll
-        </span>
-        <div className="w-px h-24 bg-linear-to-b from-chassis/40 to-transparent" />
-      </motion.div>
-
-      <ResumeModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        resumeUrl="/resume.pdf"
-      />
+      </div>
     </section>
   );
 };

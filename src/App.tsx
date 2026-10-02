@@ -1,46 +1,52 @@
-import { motion, useScroll, useSpring } from "framer-motion";
+import { useCallback, useState } from "react";
+import { AnimatePresence, motion, useScroll, useSpring } from "framer-motion";
+import { ReactLenis } from "lenis/react";
+import "lenis/dist/lenis.css";
 import { Navbar } from "./components/layout/Navbar";
+import { Footer } from "./components/layout/Footer";
 import { Hero } from "./components/sections/Hero";
-import { About } from "./components/sections/About";
-import { Skills } from "./components/sections/Skills";
+import { Capabilities } from "./components/sections/Capabilities";
 import { Projects } from "./components/sections/Projects";
 import { Experience } from "./components/sections/Experience";
+import { Moments } from "./components/sections/Moments";
 import { Education } from "./components/sections/Education";
 import { Contact } from "./components/sections/Contact";
-import { Footer } from "./components/layout/Footer";
-import { LoadingScreen } from "./components/ui/LoadingScreen";
+import { ResumeModal } from "./components/ui/ResumeModal";
+import { Preloader } from "./components/ui/Preloader";
 
 export default function App() {
+  const [loaded, setLoaded] = useState(false);
+  const onLoaded = useCallback(() => setLoaded(true), []);
+  const [resumeOpen, setResumeOpen] = useState(false);
+  const openResume = () => setResumeOpen(true);
   const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
 
   return (
-    <div className="relative w-full bg-surface-base selection:bg-ignitionRed selection:text-white">
-      <LoadingScreen />
-      
-      {/* High-Performance Progress Bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1.5 bg-ignitionRed origin-left z-[100]"
-        style={{ scaleX }}
-      />
+    // anchors: Lenis handles #links itself (it honours the 64px scroll-margin-top in index.css)
+    <ReactLenis root options={{ lerp: 0.1, anchors: true }}>
+      <div className="relative w-full">
+        <AnimatePresence>{!loaded && <Preloader onDone={onLoaded} />}</AnimatePresence>
+        <motion.div className="fixed top-0 inset-x-0 h-0.5 bg-neon origin-left z-[60]" style={{ scaleX }} />
+        {loaded && (
+          <>
+            <Navbar onResume={openResume} />
 
-      <Navbar />
+            <main>
+              <Hero />
+              <Capabilities />
+              <Projects />
+              <Experience />
+              <Moments />
+              <Education />
+              <Contact onResume={openResume} />
+            </main>
 
-      <main className="relative">
-        <Hero />
-        <About />
-        <Skills />
-        <Projects />
-        <Experience />
-        <Education />
-        <Contact />
-      </main>
-
-      <Footer />
-    </div>
+            <Footer onResume={openResume} />
+          </>
+        )}
+        <ResumeModal isOpen={resumeOpen} onClose={() => setResumeOpen(false)} />
+      </div>
+    </ReactLenis>
   );
 }

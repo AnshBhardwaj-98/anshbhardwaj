@@ -1,75 +1,113 @@
 @import "tailwindcss";
 
 @theme {
-  --color-chassis: #000827;
-  --color-ignitionRed: #bb0016;
-  --color-telemetryYellow: #f1c100;
-  --color-telemetryYellow-dark: #745b00;
-  --color-surface-base: #f9f9f9;
-  --color-surface-layered: #e2e2e2;
-  --color-surface-container: #ececec;
+  --color-ink: #0e0e0e;
+  --color-ink-2: #0b0b0d;
+  --color-paper: #ececec;
+  --color-cream: #f5f4f2;
+  --color-neon: #cbf74b;
+  --color-muted: #b3b3b3;
+  --color-muted-2: #8a8a8a;
+  --color-muted-dark: #5a5a5a;
+  --color-line: #2a2a2a;
+  --color-line-light: #cfcfcf;
+  --color-hairline: #414141;
+
+  --font-sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Google Sans Flex", "Inter", "Helvetica Neue", sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
   body {
-    background-color: var(--color-surface-base);
-    color: var(--color-chassis);
-    font-family: "Manrope", sans-serif;
+    background-color: var(--color-ink);
+    color: var(--color-cream);
+    font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
-  
-  body::selection {
-    background-color: var(--color-ignitionRed);
-    color: white;
+  ::selection {
+    background-color: var(--color-neon);
+    color: var(--color-ink);
   }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: "Space Grotesk", sans-serif;
+  section[id] {
+    scroll-margin-top: 64px;
   }
 }
 
-/* Aerodynamic Patterns */
-@utility carbon-fiber {
-  background-color: #f9f9f9;
-  background-image: linear-gradient(45deg, #f2f2f2 25%, transparent 25%, transparent 75%, #f2f2f2 75%, #f2f2f2), 
-                    linear-gradient(45deg, #f2f2f2 25%, transparent 25%, transparent 75%, #f2f2f2 75%, #f2f2f2);
-  background-size: 4px 4px;
-  background-position: 0 0, 2px 2px;
+/* Page gutter used by every section */
+@utility px-page {
+  padding-inline: clamp(20px, 3.2vw, 64px);
 }
 
-@utility checkered-pattern {
-  background-image: conic-gradient(#000827 90deg, transparent 90deg 180deg, #000827 180deg 270deg, transparent 270deg);
-  background-size: 40px 40px;
+/* Small uppercase label with a leading square */
+@utility eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  &::before {
+    content: "";
+    width: 8px;
+    height: 8px;
+    background: currentColor;
+  }
 }
 
-/* Fast Interactions */
-* {
-  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
-  transition-duration: 300ms;
-  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+/* Condensed uppercase display type (jjettas-style), via Google Sans Flex's width axis */
+@utility display {
+  font-family: var(--font-display);
+  font-stretch: 50%;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  line-height: 0.83;
+  padding-right: 0.03em;
 }
 
-/* Custom Scrollbar */
+/* Hollow text for fill-on-scroll headings */
+@utility text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1px var(--color-hairline);
+}
+
+/* Faint grid behind dark sections */
+@utility grid-fx {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 64px 64px;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@utility animate-marquee {
+  animation: marquee 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #f9f9f9;
+  background: var(--color-ink);
 }
 ::-webkit-scrollbar-thumb {
-  background: #000827;
-  border-radius: 0;
+  background: var(--color-hairline);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #bb0016;
-}
-
-@utility aero-shadow {
-  box-shadow: 0 20px 40px -15px rgba(0, 8, 39, 0.05);
-}
-
-@utility aero-glow-red {
-  background: radial-gradient(circle at 50% 50%, rgba(187, 0, 22, 0.08) 0%, transparent 70%);
+  background: var(--color-neon);
 }

@@ -1,191 +1,115 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  X,
-  Mail,
-  Loader2,
-  CheckCircle,
-  Activity,
-  Gauge,
-  Send,
-} from "lucide-react";
+import { X, Loader2, CheckCircle, Send } from "lucide-react";
 import emailjs from "@emailjs/browser";
 
 interface ResumeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  resumeUrl: string;
 }
 
 export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
   const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
 
-  const handleDownload = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    const data = {
-      user_email: email,
-      time: new Date().toLocaleString(),
-    };
+    setStatus("sending");
+    const data = { user_email: email, time: new Date().toLocaleString() };
 
     try {
-      // 1️⃣ Notify YOU (Account A)
+      // Notify me (account A)
       await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE2_ID, // notify template
+        import.meta.env.VITE_EMAILJS_TEMPLATE2_ID,
         data,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
       );
-
-      // 2️⃣ Send resume to USER (Account B)
-      console.log("Sending auto-reply...");
-
-      const res = await emailjs.send(
+      // Auto-reply with the résumé to the visitor (account B)
+      await emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID_B,
-        import.meta.env.VITE_EMAILJS_TEMPLATE3_ID, // auto-reply template
+        import.meta.env.VITE_EMAILJS_TEMPLATE3_ID,
         data,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY_B,
       );
-
-      console.log("Auto-reply success:", res);
-
-      setIsSuccess(true);
-
+      setStatus("success");
       setTimeout(() => {
         onClose();
-        setIsSubmitting(false);
-        setIsSuccess(false);
+        setStatus("idle");
         setEmail("");
       }, 3000);
     } catch (error) {
-      console.error("Transmission Error:", error);
-      setIsSubmitting(false);
+      console.error("Resume request error:", error);
+      setStatus("error");
     }
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-chassis/60 backdrop-blur-md"
+            className="absolute inset-0 bg-black/70 backdrop-blur-md"
           />
-
           <motion.div
-            initial={{ scale: 0.98, opacity: 0, x: 20 }}
-            animate={{ scale: 1, opacity: 1, x: 0 }}
-            exit={{ scale: 0.98, opacity: 0, x: 20 }}
-            transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
-            className="relative w-full max-w-lg z-10"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="resume-title"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            className="relative w-full max-w-lg bg-ink border border-line p-8 md:p-10"
           >
-            {/* The Aerodynamic Edge Container */}
-            <div className="bg-surface-base border-t-8 border-ignitionRed p-8 md:p-12 shadow-2xl relative overflow-hidden">
-              {/* Pattern Overlay */}
-              <div className="absolute top-0 right-0 w-32 h-32 carbon-fiber opacity-[0.05] pointer-events-none" />
+            <button
+              onClick={onClose}
+              disabled={status === "sending"}
+              aria-label="Close"
+              className="absolute top-5 right-5 text-muted hover:text-neon transition-colors"
+            >
+              <X size={22} />
+            </button>
 
-              <button
-                onClick={onClose}
-                className="absolute top-6 right-6 text-chassis/40 hover:text-ignitionRed transition-colors"
-                disabled={isSubmitting}
-              >
-                <X size={24} />
-              </button>
+            <span className="eyebrow text-neon mb-4">Résumé</span>
+            <h3 id="resume-title" className="font-display text-3xl font-semibold tracking-tight mb-3">
+              {status === "success" ? "On its way." : "Get my résumé"}
+            </h3>
+            <p className="text-muted text-sm leading-relaxed mb-8">
+              {status === "success"
+                ? "Check your inbox. It should arrive in a minute or two."
+                : "Enter your email and I'll send the latest copy straight to your inbox."}
+            </p>
 
-              <div className="flex items-center gap-4 mb-10">
-                <div className="bg-chassis p-3 rounded-none">
-                  <Gauge className="text-telemetryYellow" size={20} />
-                </div>
-                <div>
-                  <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-chassis/40 leading-none mb-1">
-                    System / Request
-                  </h3>
-                  <p className="text-2xl font-black text-chassis uppercase italic tracking-tighter leading-none">
-                    Resume Fetch
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-center mb-10 bg-surface-container p-8 relative">
-                {/* Success/Action Icon */}
-                <div
-                  className={`w-20 h-20 flex items-center justify-center mx-auto mb-6 shadow-xl ${isSuccess ? "bg-vibrantEmerald bg-green-600 shadow-green-600/20" : "bg-ignitionRed shadow-ignitionRed/20"}`}
+            {status === "success" ? (
+              <CheckCircle className="text-neon" size={40} />
+            ) : (
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@company.com"
+                  aria-label="Email address"
+                  className="w-full bg-white/[0.03] border border-line px-4 py-3.5 text-cream placeholder:text-muted-dark focus:outline-none focus:border-neon transition-colors"
+                />
+                <button
+                  type="submit"
+                  disabled={status === "sending"}
+                  className="w-full inline-flex items-center justify-center gap-2.5 rounded-full bg-neon text-ink py-3.5 text-sm font-semibold hover:brightness-105 disabled:opacity-60 transition"
                 >
-                  {isSuccess ? (
-                    <CheckCircle className="text-white" size={40} />
-                  ) : (
-                    <Activity className="text-white animate-pulse" size={40} />
-                  )}
-                </div>
-
-                <h3 className="text-xl font-black text-chassis mb-3 uppercase italic tracking-tight">
-                  {isSuccess ? "Transmission Success" : "Establish Link"}
-                </h3>
-                <p className="text-chassis/60 text-sm font-medium leading-relaxed max-w-xs mx-auto">
-                  {isSuccess
-                    ? "Packet received. Data payload arriving in your inbox shortly."
-                    : "Authorize connection to receive the technical resume buffer."}
-                </p>
-              </div>
-
-              {!isSuccess && (
-                <form onSubmit={handleDownload} className="space-y-8">
-                  <div className="relative group">
-                    <div className="absolute left-0 bottom-0 w-full h-0.5 bg-chassis/10 group-focus-within:bg-ignitionRed transition-colors duration-500" />
-                    <label className="text-[9px] font-black uppercase tracking-[0.3em] text-chassis/40 block mb-2 ml-1">
-                      Endpoint Address
-                    </label>
-                    <div className="flex items-center gap-4 px-1 pb-4">
-                      <Mail
-                        className="text-chassis/20 group-focus-within:text-ignitionRed transition-colors"
-                        size={18}
-                      />
-                      <input
-                        type="email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="USER@DOMAIN.COM"
-                        className="w-full bg-transparent font-display font-bold uppercase tracking-widest text-chassis placeholder:text-chassis/10 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full py-6 bg-chassis text-telemetryYellow font-black uppercase tracking-[0.4em] text-xs shadow-xl shadow-chassis/20 hover:bg-ignitionRed hover:text-white transition-all flex items-center justify-center gap-4 group"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="animate-spin" size={16} />
-                        <span>Synchronizing...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>Execute Protocol</span>
-                        <Send
-                          size={16}
-                          className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
-                        />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-
-              {/* Technical detail footer */}
-              <div className="mt-12 flex justify-between items-center text-[8px] font-black uppercase tracking-[0.3em] text-chassis/20 border-t border-chassis/5 pt-6">
-                <span>Ref: DB-RESUME-REQ</span>
-                <span className="italic">Velocity Mode: Active</span>
-              </div>
-            </div>
+                  {status === "sending" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {status === "sending" ? "Sending…" : "Send résumé"}
+                </button>
+                {status === "error" && (
+                  <p className="text-sm text-red-400">Couldn't send right now. Please try again or email me directly.</p>
+                )}
+              </form>
+            )}
           </motion.div>
         </div>
       )}
