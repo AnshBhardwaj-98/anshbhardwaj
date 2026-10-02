@@ -17,31 +17,36 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
     setStatus("sending");
     const data = { user_email: email, time: new Date().toLocaleString() };
 
-    try {
-      // Notify me (account A)
-      await emailjs.send(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE2_ID,
-        data,
-        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-      );
-      // Auto-reply with the résumé to the visitor (account B)
-      await emailjs.send(
+    // Sent in parallel and independently: the visitor's download-link email must not depend on my notification
+    const [reply, notify] = await Promise.allSettled([
+      // Auto-reply with the résumé download link to the visitor (account B)
+      emailjs.send(
         import.meta.env.VITE_EMAILJS_SERVICE_ID_B,
         import.meta.env.VITE_EMAILJS_TEMPLATE3_ID,
         data,
         import.meta.env.VITE_EMAILJS_PUBLIC_KEY_B,
-      );
-      setStatus("success");
-      setTimeout(() => {
-        onClose();
-        setStatus("idle");
-        setEmail("");
-      }, 3000);
-    } catch (error) {
-      console.error("Resume request error:", error);
+      ),
+      // Notify me that someone requested it (account A)
+      emailjs.send(
+        import.meta.env.VITE_EMAILJS_SERVICE_ID,
+        import.meta.env.VITE_EMAILJS_TEMPLATE2_ID,
+        data,
+        import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+      ),
+    ]);
+    if (notify.status === "rejected") console.error("Resume notification error:", notify.reason);
+
+    if (reply.status === "rejected") {
+      console.error("Resume auto-reply error:", reply.reason);
       setStatus("error");
+      return;
     }
+    setStatus("success");
+    setTimeout(() => {
+      onClose();
+      setStatus("idle");
+      setEmail("");
+    }, 6000);
   };
 
   return (
@@ -80,7 +85,7 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
             </h3>
             <p className="text-muted text-sm leading-relaxed mb-8">
               {status === "success"
-                ? "Check your inbox. It should arrive in a minute or two."
+                ? "Check your inbox. It should arrive in a minute or two. Not there? Look in your spam or promotions folder."
                 : "Enter your email and I'll send the latest copy straight to your inbox."}
             </p>
 
@@ -105,6 +110,7 @@ export const ResumeModal = ({ isOpen, onClose }: ResumeModalProps) => {
                   {status === "sending" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                   {status === "sending" ? "Sending…" : "Send résumé"}
                 </button>
+                <p className="text-xs text-muted-2">It's an automated email, so it can land in spam. Worth a quick check there.</p>
                 {status === "error" && (
                   <p className="text-sm text-accent">Couldn't send right now. Please try again or email me directly.</p>
                 )}
