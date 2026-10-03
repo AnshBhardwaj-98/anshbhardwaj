@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useLenis } from "lenis/react";
 import { ArrowUp, ArrowUpRight } from "lucide-react";
 import { navItems, profile } from "../../data";
-import { LoopVideo } from "../ui/LoopVideo";
 
 // art-yakushev.com-style ending, in three layers:
 //   1. contact list: rows slide up into view; links "roll" on hover
-//   2. onyx panel with "GET IN TOUCH" cut out of it, panning sideways with scroll, so the footer
-//      behind shows through the moving letters
+//   2. onyx panel with a terracotta "GET IN TOUCH" panning sideways with scroll
 //   3. the footer, stuck to the bottom of the viewport *behind* the page (z-0 under main's z-10):
-//      as the page scrolls off it, the video zooms out, the content rises and the name assembles
+//      as the page scrolls off it, the content rises and the name assembles
 
 const year = new Date().getFullYear();
 const NAME = "Divyansh Bhardwaj";
@@ -125,17 +123,13 @@ export const Footer = ({ onResume }: { onResume: () => void }) => {
   const lenis = useLenis();
   const time = useDelhiTime();
 
-  // Reveal progress: 0 when the knockout panel enters from below, 1 at the very end of the page
+  // Reveal progress: 0 when the "Get in touch" panel enters from below, 1 at the very end of the page
   const revealRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: reveal } = useScroll({ target: revealRef, offset: ["start end", "end start"] });
   const panX = useTransform(reveal, [0, 1], [0, -1500]);
-  const videoScale = useTransform(reveal, [0.2, 1], [1.25, 1]);
   const contentY = useTransform(reveal, [0.2, 1], ["18vh", "0vh"]);
   const metaOpacity = useTransform(reveal, [0.7, 0.95], [0, 1]);
 
-  // Only run the footer video while it's actually being revealed
-  const [playing, setPlaying] = useState(false);
-  useMotionValueEvent(reveal, "change", (v) => setPlaying(v > 0.05));
 
   const letters = [...NAME];
 
@@ -173,28 +167,19 @@ export const Footer = ({ onResume }: { onResume: () => void }) => {
         </div>
       </section>
 
-      {/* 2. Knockout panel: moving transparent letters reveal the footer layer behind */}
+      {/* 2. "Get in touch" panel, panning sideways with scroll */}
       <div ref={revealRef} className="relative z-10 -mb-px" aria-hidden>
-        <svg viewBox="0 0 1920 300" className="block w-full h-auto">
-          <defs>
-            <mask id="footer-knockout" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="300">
-              <rect width="1920" height="300" fill="white" />
-              <motion.text x="60" y="250" fontSize="270" className="display" fill="black" style={{ x: panX }}>
-                Get in touch — Get in touch —
-              </motion.text>
-            </mask>
-          </defs>
-          <rect width="1920" height="300" fill="var(--color-ink)" mask="url(#footer-knockout)" />
+        <svg viewBox="0 0 1920 300" className="block w-full h-auto bg-ink">
+          <motion.text x="60" y="250" fontSize="270" className="display" fill="var(--color-accent)" style={{ x: panX }}>
+            Get in touch — Get in touch —
+          </motion.text>
         </svg>
       </div>
 
       {/* 3. Curtain-reveal footer */}
       <footer className="sticky bottom-0 z-0 h-svh min-h-[560px] overflow-hidden bg-ink text-cream">
-        <motion.div className="absolute inset-0" style={{ scale: videoScale }}>
-          <LoopVideo src="/hero/4.mp4" playing={playing} className="blur-[5px] opacity-80" />
-        </motion.div>
-        {/* depth: dark at the edges, a warm terracotta glow low in the middle, film grain on top */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(194,109,80,0.45)_0%,rgba(194,109,80,0)_55%)]" />
+        {/* depth: a warm terracotta glow low in the middle, film grain on top */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(194,109,80,0.55)_0%,rgba(194,109,80,0)_60%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,15,15,0.05)_0%,rgba(15,15,15,0.3)_45%,rgba(15,15,15,0.6)_100%)]" />
         <div className="absolute inset-0 grain opacity-[0.12] mix-blend-overlay pointer-events-none" />
 

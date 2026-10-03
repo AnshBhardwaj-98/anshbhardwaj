@@ -6,7 +6,7 @@ import { experiences } from "../../data";
 // wodniack.dev "Work" section, in our palette. One long pinned scene driven by scroll progress `p`:
 //   0.00–0.12  a cream grid with an onyx band holding EXPERIENCE; the band expands to fill the screen
 //              while the word multiplies above and below into a swaying wall (one column per letter)
-//   0.10–0.88  the experience cards (an intro + one per highlight, per job) fly out of the depth, past the viewer
+//   0.10–0.88  one card per company flies out of the depth, lingers, then rushes past the viewer
 //   0.88–1.00  the wall collapses back into the band
 
 const WORD = [..."EXPERIENCE"];
@@ -28,67 +28,66 @@ const Letter = ({ ch, r, c, mid, p }: { ch: string; r: number; c: number; mid: n
   );
 };
 
-// Each job becomes an intro card (company, role, dates) followed by one card per highlight,
-// so the flight is a longer sequence of shorter reads.
-type Slide =
-  | { kind: "intro"; job: number; e: (typeof experiences)[number] }
-  | { kind: "point"; job: number; e: (typeof experiences)[number]; t: string; d: string; n: number; of: number };
-const slides: Slide[] = experiences.flatMap((e, job) => [
-  { kind: "intro" as const, job, e },
-  ...e.points.map((pt, k) => ({ kind: "point" as const, job, e, t: pt.t, d: pt.d, n: k + 1, of: e.points.length })),
-]);
 const pad = (n: number) => String(n).padStart(2, "0");
 
+// One card per company: who/when on the left, its highlights on the right. One card in flight at a time.
 const Card = ({ i, p, mobile }: { i: number; p: MotionValue<number>; mobile: boolean }) => {
-  const s = slides[i];
-  const n = slides.length;
-  const gap = 0.78 / (n + 1.4); // last card is past the viewer by ~0.88, when the wall starts closing
+  const e = experiences[i];
+  const n = experiences.length;
+  const gap = 0.78 / (n + 0.2); // last card is past the viewer by ~0.88, when the wall starts closing
   const start = 0.1 + i * gap;
-  const span = gap * 2.4; // roughly two cards in flight at once
+  const span = gap * 1.2; // slight overlap: the next card appears in the distance as this one rushes past
   const t = (v: number) => (v - start) / span; // 0 = far away, 1 = past the viewer
   const side = i % 2 ? 1 : -1;
-  // glide in from the depth, then rush past the camera (z beyond the 1200px perspective = behind the viewer)
+  // glide in from the depth, linger near the viewer, then rush past the camera
+  // (z beyond the 1200px perspective = behind the viewer)
   const z = useTransform(p, (v) => {
     const k = clamp01(t(v));
-    return k < 0.94 ? -2000 + (2250 * k) / 0.94 : 250 + ((k - 0.94) / 0.06) * 1100;
+    // phones stack the card's two halves, so it lingers a little further back to fit the screen
+    const [near, far] = mobile ? [-380, -80] : [-200, 200];
+    if (k < 0.35) return -2000 + ((near + 2000) * k) / 0.35; // approach
+    if (k < 0.9) return near + ((k - 0.35) / 0.55) * (far - near); // slow drift while it's read
+    return far + ((k - 0.9) / 0.1) * (1350 - far); // rush past
   });
-  const x = useTransform(p, (v) => `${side * (mobile ? 1 + clamp01(t(v)) * 3 : 6 + clamp01(t(v)) * 10)}vw`);
-  const y = useTransform(p, (v) => `${(i % 3 === 1 ? -6 : 4) + clamp01(t(v)) * -4}svh`);
+  const x = useTransform(p, (v) => `${side * (mobile ? 0 : 2 + clamp01(t(v)) * 4)}vw`);
+  const y = useTransform(p, (v) => `${2 - clamp01(t(v)) * 4}svh`);
   const opacity = useTransform(p, (v) => {
     const k = t(v);
-    return k <= 0 || k >= 1 ? 0 : Math.min(1, k / 0.15);
+    return k <= 0 || k >= 1 ? 0 : Math.min(1, k / 0.12);
   });
 
   return (
     <motion.article
-      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(680px,90vw)]"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(900px,92vw)]"
       style={{ z, x, y, opacity }}
     >
-      {s.kind === "intro" ? (
-        <div className="bg-ink text-cream border border-accent/40 p-[clamp(20px,2.6vw,40px)] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+      <div className="bg-cream text-ink grid md:grid-cols-[1fr_1.15fr] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
+        {/* who / when */}
+        <div className="bg-ink text-cream border border-accent/40 p-[clamp(20px,2.6vw,40px)] flex flex-col">
           <div className="flex justify-between gap-4 text-[11px] uppercase tracking-[0.12em] text-cream/55">
-            <span>{s.e.period}</span>
+            <span>{e.period}</span>
             <span className="inline-flex items-center gap-1.5">
-              <MapPin size={11} /> {s.e.location}
+              <MapPin size={11} /> {e.location}
             </span>
           </div>
-          <h3 className="display text-[clamp(56px,6.6vw,116px)] mt-[clamp(28px,4vw,64px)] text-accent">{s.e.company}</h3>
-          <p className="mt-3 text-[clamp(15px,1.3vw,20px)]">{s.e.role}</p>
+          <h3 className="display text-[clamp(52px,5.6vw,100px)] mt-[clamp(24px,5vw,90px)] text-accent">{e.company}</h3>
+          <p className="mt-3 text-[clamp(14px,1.2vw,18px)]">{e.role}</p>
         </div>
-      ) : (
-        <div className="bg-cream text-ink p-[clamp(20px,2.6vw,40px)] shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
-          <div className="flex justify-between gap-4 text-[11px] uppercase tracking-[0.12em] text-muted">
-            <span className="text-accent">{s.e.company}</span>
-            <span>
-              {pad(s.n)} / {pad(s.of)}
-            </span>
-          </div>
-          <h3 className="display text-[clamp(44px,5vw,84px)] mt-[clamp(24px,3vw,48px)]">{s.t}</h3>
-          <p className="mt-4 pt-4 border-t border-line text-[clamp(15px,1.3vw,20px)] leading-[1.5] text-ink/75">{s.d}</p>
-        </div>
-      )}
+        {/* highlights */}
+        <ol className="p-[clamp(20px,2.6vw,40px)] grid content-center gap-[clamp(12px,1.4vw,20px)]">
+          {e.points.map((pt, k) => (
+            <li key={pt.t} className="grid grid-cols-[28px_1fr] gap-2 border-t border-line pt-[clamp(10px,1.2vw,16px)] first:border-t-0 first:pt-0">
+              <span className="text-[11px] tabular-nums text-accent pt-1">{pad(k + 1)}</span>
+              <span>
+                <span className="block font-display font-semibold text-[clamp(16px,1.4vw,21px)] leading-tight">{pt.t}</span>
+                <span className="block mt-1 text-[clamp(13px,1vw,15px)] leading-[1.5] text-ink/70">{pt.d}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
       <div className="mt-2 flex justify-between text-[10.5px] uppercase tracking-[0.16em] text-accent">
-        <span>{s.kind === "intro" ? s.e.role : s.e.company}</span>
+        <span>{e.company}</span>
         <span>
           {pad(i + 1)} / {pad(n)}
         </span>
@@ -143,7 +142,7 @@ export const Experience = () => {
   const mid = (rows - 1) / 2;
 
   return (
-    <section id="experience" ref={ref} className="relative h-[1300svh] bg-cream" aria-label="Experience">
+    <section id="experience" ref={ref} className="relative h-[1000svh] bg-cream" aria-label="Experience">
       <div className="sticky top-0 h-svh overflow-hidden [--row:11svh] md:[--row:14svh]">
         {/* cream grid behind the band */}
         <div className="absolute inset-0 grid-fx [background-size:7.5vw_7.5vw]" />
@@ -176,7 +175,7 @@ export const Experience = () => {
 
           {/* experience cards flying through */}
           <div className="absolute inset-0 [perspective:1200px] [transform-style:preserve-3d]">
-            {slides.map((_, i) => (
+            {experiences.map((_, i) => (
               <Card key={i} i={i} p={p} mobile={mobile} />
             ))}
           </div>
