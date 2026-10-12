@@ -109,9 +109,9 @@ export const projects: Project[] = [
 
 export const experiences = [
   {
-    role: "SDE Intern",
+    role: "SDE",
     company: "Synergy Labs",
-    period: "Apr 2026 – Sep 2026",
+    period: "Apr 2026 – Present",
     location: "Gurugram, India",
     points: [
       {
@@ -153,7 +153,7 @@ export const education = {
   school: "Sharda University",
   place: "Greater Noida, India",
   period: "2022 – 2026",
-  cgpa: "7.98 / 10",
+  cgpa: "8.0 / 10",
 };
 
 // "Signature Moments": a headline number, what it measures, and a small bar chart of the numbers behind it
